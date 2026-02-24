@@ -224,7 +224,7 @@
   </div>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyZSN0CKz9cPCN2wSs3NJCyICsdpM5zetkgbEdO1mW_3oOjkjKcgQzcpRyqE3RsB9gN/exec"; // ← Dán link Apps Script vào đây
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsf9Ya9FqYbk2l-v_a5botW3OLXRLu8uhKFiO58baOaYJ93vBTlk8Sp0cM186xO_Tp/exec"; // ← Dán link Apps Script vào đây
     const MAX_LOGIN_ATTEMPTS = 5;
     const LOCKOUT_MINUTES = 5;
 
@@ -257,9 +257,13 @@
       const errorEl = document.getElementById("errorMsg");
 
       try {
-        const response = await fetch(
-          `${WEB_APP_URL}?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
-        );
+        const response = await fetch(WEB_APP_URL, {
+          method: "POST",
+          body: new URLSearchParams({
+            username: username,
+            password: password
+          })
+        });
 
         const result = await response.json();
 
