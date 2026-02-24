@@ -8,6 +8,12 @@
             window.location.href = "index.html";
         }
     </script>
+<!-- Flatpickr CSS + Theme đẹp (material_blue rất hợp với accent xanh #2563eb) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Kiểm Tra & Xuất Bản Thảo Bài Báo - JSLHU</title>
@@ -381,7 +387,63 @@
             margin-top: 2rem;
             border-top: 1px solid var(--border);
         }
+        /* Flatpickr override để đẹp, khớp theme LHU */
+.flatpickr-calendar {
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--card-bg);
+    color: var(--text);
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.today.selected {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: white !important;
+}
+
+.flatpickr-day:hover,
+.flatpickr-day:focus {
+    background: var(--accent-glow) !important;
+    border-color: var(--accent) !important;
+}
+
+.flatpickr-current-month .cur-month,
+.flatpickr-current-month input.cur-year {
+    color: var(--accent) !important;
+}
+
+.flatpickr-weekdays {
+    background: var(--input-bg);
+}
+
+.flatpickr-day.today {
+    border-color: var(--accent);
+}
+
+/* Dark mode */
+[data-theme="dark"] .flatpickr-calendar {
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .flatpickr-day.inRange,
+[data-theme="dark"] .flatpickr-day.prevMonthDay.inRange,
+[data-theme="dark"] .flatpickr-day.nextMonthDay.inRange,
+[data-theme="dark"] .flatpickr-day.today.inRange {
+    background: rgba(37, 99, 235, 0.2) !important;
+}
     </style>
+    <!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Plugin cho month/year only (rất quan trọng nếu chỉ muốn chọn tháng/năm) -->
+<script src="https://npmcdn.com/flatpickr@4.6.13/dist/plugins/monthSelect/index.js"></script>
+<!-- Hoặc dùng phiên bản mới nhất từ unpkg nếu cần: https://unpkg.com/flatpickr/dist/plugins/monthSelect/index.js -->
 </head>
 
 <body data-theme="light">
@@ -456,6 +518,15 @@
                     <label>Nội dung chính:</label>
                     <div id="editor" class="quill-editor" style="height: 340px;"></div>
                 </div>
+<div class="form-group">
+    <label>Ngày xuất bản (Issue & Ngày/Tháng/Năm):</label>
+    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        
+        <input type="text" id="publishDate" placeholder="Chọn ngày/tháng/năm (ví dụ: 15 March 2025)" style="flex: 1; min-width: 220px; padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text);">
+    </div>
+    <small style="color: var(--text-muted); display: block; margin-top: 4px;">
+    </small>
+</div>
                 <div class="form-group">
                     <label>Template Word (.docx):</label>
                     <input type="file" id="templateFile" accept=".docx">
@@ -623,7 +694,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <!-- Quill Image Resize Module -->
     <script src="https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js"></script>
+    
     <script>
+        // Month/Year Picker đẹp (sử dụng plugin monthSelect)
+flatpickr("#publishDate", {
+    plugins: [
+        new monthSelectPlugin({
+            shorthand: true,          // Tháng ngắn: Jan, Feb,...
+            dateFormat: "F Y",        // Output: "March 2025"
+            altFormat: "F Y",         // Hiển thị trong input: March 2025
+            theme: "material_blue"    // Hoặc "light", "dark", "airbnb" – khớp accent xanh
+        })
+    ],
+    altInput: true,               // Input ẩn, hiển thị đẹp altInput
+    altFormat: "F Y",
+    dateFormat: "F Y",
+    defaultDate: "March 2025",    // Mặc định (hoặc new Date() cho tháng hiện tại)
+    static: true,                 // Optional: picker luôn hiển thị nếu muốn inline
+    onChange: function(selectedDates, dateStr, instance) {
+        // Optional: cập nhật preview hoặc log
+        console.log("Đã chọn:", dateStr);
+        updatePreview(); // Nếu bạn muốn preview thay đổi theo
+    }
+});
         // Theme toggle
         const themeBtn = document.getElementById('themeBtn');
         const body = document.body;
@@ -799,16 +892,34 @@ Hãy phân tích chi tiết và đưa ra gợi ý cải thiện.
                         linebreaks: true,
                     });
 
-                    doc.render({
-                        title: document.getElementById('title_vi').value,
-                        title_en: document.getElementById('title_en').value,
-                        authors: document.getElementById('authors').value,
-                        contact: document.getElementById('contact').value,
-                        abstract: document.getElementById('abstract_vi').value,
-                        abstract_en: document.getElementById('abstract_en').value,
-                        keywords: document.getElementById('keywords_vi').value,
-                        keywords_en: document.getElementById('keywords_en').value
-                    });
+// Lấy giá trị từ Flatpickr (định dạng "d F Y" → "15 March 2025")
+let publishStr = document.getElementById('publishDate').value.trim();
+
+// Nếu không có giá trị → dùng ngày hiện tại
+if (!publishStr) {
+    const today = new Date();
+    publishStr = today.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    }); // → "15 March 2025"
+}
+
+// Chuyển thành "15, March, 2025" bằng cách tách và nối lại
+const parts = publishStr.split(' '); // ["15", "March", "2025"]
+const formattedDate = `${parts[0]} ${parts[1]}, ${parts[2]}`; // "15, March, 2025"
+
+doc.render({
+    title: document.getElementById('title_vi').value,
+    title_en: document.getElementById('title_en').value,
+    authors: document.getElementById('authors').value,
+    contact: document.getElementById('contact').value,
+    abstract: document.getElementById('abstract_vi').value,
+    abstract_en: document.getElementById('abstract_en').value,
+    keywords: document.getElementById('keywords_vi').value,
+    keywords_en: document.getElementById('keywords_en').value,
+    date: `JSLHU, Issue ${formattedDate}`,
+});
 
                     const blob = doc.getZip().generate({ type: "blob" });
                     saveAs(blob, "Ban_thao_bai_bao.docx");
@@ -819,8 +930,32 @@ Hãy phân tích chi tiết và đưa ra gợi ý cải thiện.
             };
             reader.readAsArrayBuffer(fileInput.files[0]);
         };
-
+// Date Picker đẹp: chọn ngày/tháng/năm (không cần plugin riêng)
+flatpickr("#publishDate", {
+    dateFormat: "d F Y",              // Output: "15 March 2025" (dễ đọc, hợp tạp chí)
+    altInput: true,                   // Tạo input ẩn + hiển thị đẹp
+    altFormat: "d F Y",               // Hiển thị trong ô input: 15 March 2025
+    defaultDate: new Date(),          // Mặc định hôm nay (có thể đổi thành "2025-03-15")
+    weekNumbers: true,                // Optional: hiển thị số tuần
+    allowInput: true,                 // Cho phép gõ tay nếu cần
+    onChange: function(selectedDates, dateStr, instance) {
+        // Optional: cập nhật preview ngay khi chọn
+        updatePreview();
+    }
+});
         updatePreview(); // Khởi chạy lần đầu
+        // Thêm hiển thị ngày vào preview nếu cần (tuỳ chọn)
+        const publishDateInput = document.getElementById('publishDate')?.value || document.getElementById('publishMonth')?.value;
+        if (publishDateInput) {
+            const dateObj = new Date(publishDateInput);
+            const monthName = dateObj.toLocaleString('en-US', { month: 'long' });
+            const year = dateObj.getFullYear();
+            const displayDate = `JSLHU, Issue 20, ${monthName} ${year}`;
+
+            // Bạn có thể chèn vào một phần tử trong preview, ví dụ footer preview
+            // Hiện tại preview chưa có chỗ dành sẵn → có thể thêm tạm vào dưới ISSN
+            // Hoặc chỉ dùng cho export Word
+        }
         // Copy nội dung chính từ preview sang clipboard (dạng HTML)
         // Nút Tô lẹ: highlight phần preview-content để dễ chọn + copy
         document.getElementById("copyPreviewBtn").addEventListener("click", () => {
