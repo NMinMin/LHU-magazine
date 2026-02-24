@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Đăng nhập - Hệ thống bảo mật</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     :root {
       --bg: #0f0f1a;
@@ -51,8 +52,8 @@
       padding: 2.8rem 2.4rem;
       width: 100%;
       max-width: 420px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6),
-                  inset 0 0 30px rgba(108,92,231,0.08);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+        inset 0 0 30px rgba(108, 92, 231, 0.08);
       position: relative;
       overflow: hidden;
     }
@@ -71,7 +72,9 @@
     }
 
     @keyframes rotate {
-      100% { transform: rotate(360deg); }
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     h1 {
@@ -107,8 +110,8 @@
     input {
       width: 100%;
       padding: 1rem 1rem 1rem 2.8rem;
-      background: rgba(40,40,80,0.4);
-      border: 1px solid rgba(100,150,255,0.2);
+      background: rgba(40, 40, 80, 0.4);
+      border: 1px solid rgba(100, 150, 255, 0.2);
       border-radius: 12px;
       color: white;
       font-size: 1rem;
@@ -118,8 +121,8 @@
     input:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(108,92,231,0.25);
-      background: rgba(40,40,80,0.6);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.25);
+      background: rgba(40, 40, 80, 0.6);
     }
 
     .input-icon {
@@ -140,7 +143,9 @@
       transition: color 0.2s;
     }
 
-    .password-toggle:hover { color: var(--accent-hover); }
+    .password-toggle:hover {
+      color: var(--accent-hover);
+    }
 
     .btn {
       width: 100%;
@@ -153,12 +158,12 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 8px 25px rgba(108,92,231,0.35);
+      box-shadow: 0 8px 25px rgba(108, 92, 231, 0.35);
     }
 
     .btn:hover {
       transform: translateY(-3px);
-      box-shadow: 0 12px 35px rgba(108,92,231,0.5);
+      box-shadow: 0 12px 35px rgba(108, 92, 231, 0.5);
       background: linear-gradient(90deg, #7f6bef, var(--accent));
     }
 
@@ -186,95 +191,106 @@
     }
   </style>
 </head>
+
 <body>
 
-<div class="login-container">
-  <h1>Đăng Nhập</h1>
-  <p class="subtitle">Truy cập hệ thống LHU Magazine</p>
+  <div class="login-container">
+    <h1>Đăng Nhập</h1>
+    <p class="subtitle">Truy cập hệ thống LHU Magazine</p>
 
-  <form id="loginForm">
-    <div class="form-group">
-      <label for="username">Tên đăng nhập</label>
-      <i class="fas fa-user input-icon"></i>
-      <input type="text" id="username" placeholder="Nhập tên đăng nhập" autocomplete="username" required autofocus>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Tên đăng nhập</label>
+        <i class="fas fa-user input-icon"></i>
+        <input type="text" id="username" placeholder="Nhập tên đăng nhập" autocomplete="username" required autofocus>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mật khẩu</label>
+        <i class="fas fa-lock input-icon"></i>
+        <input type="password" id="password" placeholder="Nhập mật khẩu" autocomplete="current-password" required>
+        <i class="fas fa-eye-slash password-toggle" id="togglePassword"></i>
+      </div>
+
+      <div class="error" id="errorMsg">Thông tin không đúng!</div>
+      <div class="locked" id="lockedMsg">Tài khoản bị khóa tạm thời. Thử lại sau 5 phút.</div>
+
+      <button type="submit" class="btn">Đăng Nhập</button>
+    </form>
+
+    <div class="footer">
+      © 2026 Hệ thống bảo mật - LHU Magazine
     </div>
-
-    <div class="form-group">
-      <label for="password">Mật khẩu</label>
-      <i class="fas fa-lock input-icon"></i>
-      <input type="password" id="password" placeholder="Nhập mật khẩu" autocomplete="current-password" required>
-      <i class="fas fa-eye-slash password-toggle" id="togglePassword"></i>
-    </div>
-
-    <div class="error" id="errorMsg">Thông tin không đúng!</div>
-    <div class="locked" id="lockedMsg">Tài khoản bị khóa tạm thời. Thử lại sau 5 phút.</div>
-
-    <button type="submit" class="btn">Đăng Nhập</button>
-  </form>
-
-  <div class="footer">
-    © 2026 Hệ thống bảo mật - LHU Magazine
   </div>
-</div>
 
-<script>
-// Cấu hình tài khoản (giữ nguyên như trước)
-const VALID_USERNAME = "phuonglong@lhu.edu.vn";
-const VALID_PASSWORD = "longdao021204";
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_MINUTES = 5;
+  <script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyZSN0CKz9cPCN2wSs3NJCyICsdpM5zetkgbEdO1mW_3oOjkjKcgQzcpRyqE3RsB9gN/exec"; // ← Dán link Apps Script vào đây
+    const MAX_LOGIN_ATTEMPTS = 5;
+    const LOCKOUT_MINUTES = 5;
 
-let loginAttempts = parseInt(localStorage.getItem("loginAttempts") || "0");
-let lockoutTime = parseInt(localStorage.getItem("lockoutTime") || "0");
+    let loginAttempts = parseInt(localStorage.getItem("loginAttempts") || "0");
+    let lockoutTime = parseInt(localStorage.getItem("lockoutTime") || "0");
 
-const now = Date.now();
-if (lockoutTime > now) {
-  document.getElementById("lockedMsg").style.display = "block";
-  document.getElementById("loginForm").querySelectorAll("input, button").forEach(el => el.disabled = true);
-}
-
-const togglePassword = document.getElementById("togglePassword");
-const passwordInput = document.getElementById("password");
-
-togglePassword.addEventListener("click", () => {
-  const type = passwordInput.type === "password" ? "text" : "password";
-  passwordInput.type = type;
-  togglePassword.classList.toggle("fa-eye");
-  togglePassword.classList.toggle("fa-eye-slash");
-});
-
-document.getElementById("loginForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  if (lockoutTime > Date.now()) return;
-
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value;
-
-  const errorEl = document.getElementById("errorMsg");
-
-  if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-    localStorage.setItem("lh_access_granted", "true");
-    localStorage.setItem("loginTime", Date.now());
-    localStorage.removeItem("loginAttempts");
-    localStorage.removeItem("lockoutTime");
-    // Chuyển hướng đến trang chính hoặc LHU_Magazine.html
-    window.location.href = "LHU_Magazine.html";   // ← thay bằng link mong muốn
-  } else {
-    loginAttempts++;
-    localStorage.setItem("loginAttempts", loginAttempts);
-    errorEl.textContent = `Sai thông tin (${loginAttempts}/${MAX_LOGIN_ATTEMPTS})`;
-    errorEl.style.display = "block";
-
-    if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
-      const lockUntil = Date.now() + LOCKOUT_MINUTES * 60 * 1000;
-      localStorage.setItem("lockoutTime", lockUntil);
+    const now = Date.now();
+    if (lockoutTime > now) {
       document.getElementById("lockedMsg").style.display = "block";
       document.getElementById("loginForm").querySelectorAll("input, button").forEach(el => el.disabled = true);
     }
-  }
-});
-</script>
+
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
+
+    togglePassword.addEventListener("click", () => {
+      const type = passwordInput.type === "password" ? "text" : "password";
+      passwordInput.type = type;
+      togglePassword.classList.toggle("fa-eye");
+      togglePassword.classList.toggle("fa-eye-slash");
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      if (lockoutTime > Date.now()) return;
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+      const errorEl = document.getElementById("errorMsg");
+
+      try {
+        const response = await fetch(
+          `${WEB_APP_URL}?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+        );
+
+        const result = await response.json();
+
+        if (result.success) {
+          localStorage.setItem("lh_access_granted", "true");
+          localStorage.setItem("loginTime", Date.now());
+          localStorage.removeItem("loginAttempts");
+          localStorage.removeItem("lockoutTime");
+          window.location.href = "LHU_Magazine.html";
+        } else {
+          loginAttempts++;
+          localStorage.setItem("loginAttempts", loginAttempts);
+          errorEl.textContent = `Sai thông tin (${loginAttempts}/${MAX_LOGIN_ATTEMPTS})`;
+          errorEl.style.display = "block";
+
+          if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+            const lockUntil = Date.now() + LOCKOUT_MINUTES * 60 * 1000;
+            localStorage.setItem("lockoutTime", lockUntil);
+            document.getElementById("lockedMsg").style.display = "block";
+            document.querySelectorAll("#loginForm input, #loginForm button")
+              .forEach(el => el.disabled = true);
+          }
+        }
+
+      } catch (error) {
+        errorEl.textContent = "Lỗi kết nối đến máy chủ!";
+        errorEl.style.display = "block";
+      }
+    });
+  </script>
 
 </body>
+
 </html>
