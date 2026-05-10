@@ -19,6 +19,7 @@
     <title>AI Kiểm Tra & Xuất Bản Thảo Bài Báo - JSLHU</title>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
             --bg: #ffffff;
@@ -255,6 +256,24 @@
         [data-theme="dark"] #aiFeedback {
             background: rgba(30, 41, 59, 0.6);
         }
+
+        /* Markdown render trong AI feedback */
+        #aiFeedback h1, #aiFeedback h2, #aiFeedback h3 {
+            color: var(--accent);
+            margin: 1rem 0 0.5rem;
+            font-weight: 700;
+        }
+        #aiFeedback h1 { font-size: 1.2rem; }
+        #aiFeedback h2 { font-size: 1.1rem; }
+        #aiFeedback h3 { font-size: 1rem; }
+        #aiFeedback p { margin-bottom: 0.6rem; }
+        #aiFeedback ul, #aiFeedback ol {
+            margin: 0.4rem 0 0.8rem 1.4rem;
+            padding: 0;
+        }
+        #aiFeedback li { margin-bottom: 0.3rem; }
+        #aiFeedback strong { color: var(--accent-dark); font-weight: 700; }
+        [data-theme="dark"] #aiFeedback strong { color: var(--accent); }
 
         .preview-wrapper {
             margin-top: 2rem;
@@ -859,7 +878,7 @@ Hãy phân tích chi tiết và đưa ra gợi ý cải thiện.
 
                 if (data.result) {
                     document.getElementById("aiFeedback").innerHTML =
-                        data.result.replace(/\n/g, "<br>");
+                        marked.parse(data.result);
                 } else {
                     document.getElementById("aiFeedback").innerHTML =
                         "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
