@@ -140,20 +140,42 @@
         }
 
         .main-content {
-            max-width: 1600px;
+            max-width: 1900px;
             margin: 2rem auto;
             padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: minmax(720px, 1.25fr) minmax(460px, .75fr);
+            gap: 1.5rem;
+            align-items: start;
         }
 
         .container-top {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-column: 2;
+            grid-row: 1;
+            display: flex;
+            flex-direction: column;
             gap: 1.5rem;
         }
 
-        @media (max-width: 1024px) {
-            .container-top {
+        .container-bottom {
+            grid-column: 1;
+            grid-row: 1;
+            min-width: 0;
+        }
+
+        @media (max-width: 1280px) {
+            .main-content {
                 grid-template-columns: 1fr;
+            }
+
+            .container-top {
+                grid-column: 1;
+                grid-row: 1;
+            }
+
+            .container-bottom {
+                grid-column: 1;
+                grid-row: 2;
             }
         }
 
@@ -243,6 +265,11 @@
             box-shadow: 0 8px 25px var(--accent-glow);
         }
 
+        #exportPdfBtn {
+            background: linear-gradient(90deg, #dc2626, #b91c1c);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, .28);
+        }
+
         #aiFeedback {
             background: #f9fafb;
             border-radius: 10px;
@@ -302,30 +329,78 @@
         }
 
         .preview-wrapper {
-            margin-top: 2rem;
+            margin-top: 0;
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 1.5rem;
             box-shadow: var(--shadow);
+            overflow-x: auto;
         }
 
         .preview {
             width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto;
-            padding: 20mm 18mm 20mm 22mm;
+            height: 297mm;
+            box-sizing: border-box;
+            margin: 0 auto 18px;
+            padding: 16mm 18mm 12mm 22mm;
             background: var(--preview-bg);
             box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
             font-family: "Times New Roman", Times, serif;
             font-size: 12pt;
-            line-height: 1.6;
+            line-height: 1.45;
             color: var(--preview-text);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .preview-pages {
+            min-width: 210mm;
+        }
+
+        .cover-content,
+        .article-page-content {
+            flex: 1;
+            min-height: 0;
+        }
+
+        .article-running-header {
+            flex: 0 0 7mm;
+            box-sizing: border-box;
+            margin-bottom: 3mm;
+            border-bottom: 1px solid #333;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 8pt;
+            font-style: italic;
+            line-height: 1.2;
+            color: #222;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .article-running-header.even {
+            text-align: left;
+        }
+
+        .article-running-header.odd {
+            text-align: right;
+        }
+
+        .article-page-content {
+            column-count: 2;
+            column-gap: 10mm;
+            column-fill: auto;
+            overflow: hidden;
+            line-height: 1.55;
+            font-size: 10pt;
+            text-align: justify;
+            hyphens: auto;
         }
 
         /* Định dạng heading trong preview giống Word / hình của bạn */
-        #preview-content {
-            margin-top: 40px;
+        .article-page-content {
             column-count: 2;
             column-gap: 40px;
             line-height: 1.7;
@@ -334,16 +409,17 @@
             hyphens: auto;
         }
 
-        #preview-content h1,
-        #preview-content h2,
-        #preview-content h3 {
+        .article-page-content h1,
+        .article-page-content h2,
+        .article-page-content h3 {
             font-weight: bold;
+            color: #2a4e8a;
             margin: 20px 0 10px;
             break-after: avoid-column;
             /* Tránh heading bị cắt giữa 2 cột */
         }
 
-        #preview-content h1 {
+        .article-page-content h1 {
             font-size: 10pt;
             text-transform: uppercase;
             color: #2a4e8a;
@@ -352,52 +428,67 @@
             margin: 0px 0 5px;
         }
 
-        #preview-content h2 {
+        .article-page-content h2 {
             font-size: 10pt;
             margin-left: 0;
         }
 
-        #preview-content h3 {
+        .article-page-content h3 {
             font-size: 10pt;
             margin-left: 20px;
             /* Indent nhẹ cho cấp 2.1, 3.1... */
         }
 
-        #preview-content p {
+        .article-page-content p {
             margin: 0 0 12px 0;
         }
 
-        #preview-content strong {
+        .article-page-content strong {
             font-weight: bold;
         }
 
         /* Nếu dùng list ordered trong Quill, style đẹp hơn */
-        #preview-content ol {
+        .article-page-content ol,
+        .article-page-content ul {
             margin: 10px 0 10px 30px;
             padding-left: 20px;
         }
 
-        #preview-content table {
+        .article-page-content table {
             width: 100%;
             border-collapse: collapse;
             margin: 1em 0;
         }
 
-        #preview-content {
+        .article-page-content {
             column-count: 2;
             column-gap: 40px;
-            margin-top: 1.5rem;
+            margin-top: 0;
             text-align: justify;
             /* Mặc định justify cho văn bản */
         }
 
         /* Hỗ trợ căn giữa từ Quill */
-        #preview-content .ql-align-center {
+        .article-page-content .ql-align-center {
             text-align: center !important;
         }
 
+        .article-page-content .ql-align-right { text-align: right !important; }
+        .article-page-content .ql-align-justify { text-align: justify !important; }
+        .article-page-content .ql-indent-1 { margin-left: 1cm; }
+        .article-page-content .ql-indent-2 { margin-left: 2cm; }
+        .article-page-content .ql-indent-3 { margin-left: 3cm; }
+        .article-page-content .ql-indent-4 { margin-left: 4cm; }
+        .article-page-content .ql-indent-5 { margin-left: 5cm; }
+        .article-page-content .ql-indent-6 { margin-left: 6cm; }
+        .article-page-content .ql-indent-7 { margin-left: 7cm; }
+        .article-page-content .ql-indent-8 { margin-left: 8cm; }
+        .article-page-content .ql-size-small { font-size: .75em; }
+        .article-page-content .ql-size-large { font-size: 1.5em; }
+        .article-page-content .ql-size-huge { font-size: 2.5em; }
+
         /* Ảnh căn giữa tự động nếu được đặt center trong Quill */
-        #preview-content img {
+        .article-page-content img {
             max-width: 100%;
             height: auto;
             display: block;
@@ -406,20 +497,20 @@
         }
 
         /* Bảng căn giữa nếu cần */
-        #preview-content table {
+        .article-page-content table {
             margin: 1em auto;
             width: auto;
             /* Hoặc 100% tùy ý */
         }
 
-        #preview-content table th,
-        #preview-content table td {
+        .article-page-content table th,
+        .article-page-content table td {
             border: 1px solid #aaa;
             padding: 8px;
             text-align: left;
         }
 
-        #preview-content table th {
+        .article-page-content table th {
             background: #f0f0f0;
             font-weight: bold;
         }
@@ -435,7 +526,8 @@
 
         /* Footer bên trong preview giấy A4 */
         .preview-page-footer {
-            margin-top: 40px;
+            flex: 0 0 9mm;
+            margin-top: 5mm;
             border-top: 1.5px solid #333;
             padding-top: 6px;
             display: flex;
@@ -484,6 +576,221 @@
 
         .preview-page-footer.even .footer-date {
             order: 2;
+        }
+
+        .editor-help {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 8px 0;
+            color: var(--text-muted);
+            font-size: .85rem;
+        }
+
+        #insertPageBreakBtn {
+            padding: .5rem .75rem;
+            margin: 0;
+            border-radius: 7px;
+            font-size: .82rem;
+        }
+
+        .editor-help-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        #paragraphSettingsBtn {
+            padding: .5rem .75rem;
+            margin: 0;
+            border-radius: 7px;
+            font-size: .82rem;
+            background: linear-gradient(90deg, #475569, #334155);
+        }
+
+        #preservePasteBtn {
+            padding: .5rem .75rem;
+            margin: 0;
+            border-radius: 7px;
+            font-size: .82rem;
+            background: linear-gradient(90deg, #059669, #047857);
+        }
+
+        #preservePasteBtn.is-off {
+            background: linear-gradient(90deg, #64748b, #475569);
+            opacity: .8;
+        }
+
+        .paragraph-dialog {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, .55);
+        }
+
+        .paragraph-dialog.open {
+            display: flex;
+        }
+
+        .paragraph-dialog-card {
+            width: min(520px, 100%);
+            padding: 22px;
+            border-radius: 14px;
+            background: var(--card-bg);
+            color: var(--text);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, .28);
+        }
+
+        .paragraph-dialog-card h3 {
+            margin: 0 0 16px;
+            color: var(--accent);
+        }
+
+        .paragraph-settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .paragraph-settings-grid label {
+            margin: 0;
+        }
+
+        .paragraph-settings-grid input,
+        .paragraph-settings-grid select {
+            width: 100%;
+            margin-top: 6px;
+            padding: .7rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text);
+        }
+
+        .paragraph-dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: 31% 1fr;
+            gap: 14px;
+            margin-top: 10px;
+            border-top: 1.2px solid #222;
+            font-size: 9pt;
+            line-height: 1.35;
+        }
+
+        .metadata-grid.english {
+            margin-top: 10px;
+            border-bottom: 1.2px solid #222;
+            padding-bottom: 5px;
+        }
+
+        .metadata-grid h3 {
+            margin: 0 0 7px;
+            padding: 4px 2px 3px;
+            border-bottom: 1px solid #222;
+            color: #111;
+            font-size: 9pt;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .metadata-sidebar,
+        .metadata-abstract {
+            min-width: 0;
+        }
+
+        .metadata-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            padding: 2px 3px;
+        }
+
+        .metadata-row span:last-child {
+            text-align: left;
+        }
+
+        .metadata-keywords {
+            padding: 0 3px 4px;
+            line-height: 1.5;
+            text-align: left !important;
+            word-spacing: normal;
+        }
+
+        .metadata-sidebar,
+        .metadata-sidebar * {
+            text-align: left;
+        }
+
+        .metadata-abstract-content {
+            padding: 0 2px 4px;
+            text-align: justify;
+            line-height: 1.42;
+        }
+
+        .cover-authors {
+            text-align: right;
+            margin-top: 5px;
+            font-size: 10pt !important;
+        }
+
+        .cover-affiliation {
+            text-align: right;
+            margin-bottom: 2px !important;
+            font-size: 8.5pt !important;
+            font-style: italic;
+            line-height: 1.2;
+        }
+
+        .cover-contact {
+            text-align: right;
+            margin-bottom: 6px !important;
+            font-size: 8.5pt !important;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 620px) {
+            .paragraph-settings-grid { grid-template-columns: 1fr; }
+        }
+
+        .editor-page-break {
+            height: 0;
+            margin: 18px 0;
+            border-top: 2px dashed #2563eb;
+            position: relative;
+        }
+
+        .editor-page-break::after {
+            content: "Ngắt trang";
+            position: absolute;
+            top: -11px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1px 8px;
+            background: white;
+            color: #2563eb;
+            font: 12px 'Segoe UI', sans-serif;
+        }
+
+        @media print {
+            @page { size: A4 portrait; margin: 0; }
+            html, body { width: 210mm; margin: 0 !important; padding: 0 !important; background: #fff !important; }
+            body * { visibility: hidden; }
+            .preview-pages, .preview-pages * { visibility: visible; }
+            .preview-pages { position: absolute; inset: 0; width: 210mm; min-width: 0; }
+            .preview { width: 210mm; height: 297mm; margin: 0; box-shadow: none; break-after: page; page-break-after: always; }
+            .preview:last-child { break-after: auto; page-break-after: auto; }
+            #content-pages { display: block !important; }
         }
 
         /* Flatpickr override để đẹp, khớp theme LHU */
@@ -615,6 +922,14 @@
                 </div>
                 <div class="form-group">
                     <label>Nội dung chính:</label>
+                    <div class="editor-help">
+                        <span>Nhấn <b>Ctrl + Enter</b> để sang trang mới.</span>
+                        <div class="editor-help-actions">
+                            <button type="button" id="preservePasteBtn" aria-pressed="true"><i class="fas fa-paste"></i> Dán giữ định dạng: Bật</button>
+                            <button type="button" id="paragraphSettingsBtn"><i class="fas fa-paragraph"></i> Paragraph...</button>
+                            <button type="button" id="insertPageBreakBtn"><i class="fas fa-file-circle-plus"></i> Ngắt trang</button>
+                        </div>
+                    </div>
                     <div id="editor" class="quill-editor" style="height: 340px;"></div>
                 </div>
                 <div class="form-group">
@@ -628,11 +943,13 @@
                     </small>
                 </div>
                 <div class="form-group">
-                    <label>Template Word (.docx):</label>
+                    <label>Template Word (.docx, không bắt buộc):</label>
                     <input type="file" id="templateFile" accept=".docx">
+                    <small style="color:var(--text-muted);display:block;margin-top:6px;">Không chọn template, hệ thống vẫn xuất DOCX theo đúng bố cục preview.</small>
                 </div>
                 <button id="analyzeBtn">AI Kiểm tra & Gợi ý</button>
                 <button id="exportBtn">Xuất ra Word (.docx)</button>
+                <button id="exportPdfBtn" title="Mở hộp thoại in để lưu PDF có thể chọn và copy chữ"><i class="fas fa-file-pdf"></i> Xuất PDF (copy được)</button>
             </div>
             <!-- MIDDLE: AI gợi ý -->
             <div class="panel middle">
@@ -646,39 +963,25 @@
         <!-- Phần dưới: Preview full width - giữ nguyên -->
         <div class="container-bottom">
             <div class="preview-wrapper">
-                <div style="text-align: right; margin: 15px 0;">
-                    <button id="copyPreviewBtn" style="
-        padding: 10px 20px;
-        background: linear-gradient(90deg, #10b981, #059669);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(16,185,129,0.3);
-        transition: all 0.3s;
-    ">
-                        <i class="fas fa-copy" style="margin-right: 8px;"></i>
-                        Tô nhanh nội dung chính
-                    </button>
-                </div>
-                <div class="preview">
+                <div class="preview-pages" id="preview-pages">
+                <div class="preview cover-page" id="cover-page">
+                    <div class="cover-content">
                     <!-- Header -->
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
                         <img src="image.png" alt="JSLHU Logo" style="height:60px;">
                         <div>
                             <span
-                                style="font-size:21px; font-family:Cambria; color:#9bb0c9; letter-spacing:1px;">JOURNAL
+                                style="font-size:21px; font-family:Cambria; color:#2a4e8a; letter-spacing:1px;">JOURNAL
                                 OF
                                 SCIENCE</span><br>
                             <span
-                                style="font-size:15px; font-family:'Times New Roman', Times, serif; color:#9bb0c9; font-weight:bold;">OF
+                                style="font-size:15px; font-family:'Times New Roman', Times, serif; color:#2a4e8a; font-weight:bold;">OF
                                 LAC HONG UNIVERSITY</span>
                         </div>
                         <div style="flex:1"></div>
-                        <div style="text-align:right;">
-                            <span style="font-size:15px; color:#9bb0c9; font-weight:bold;">ISSN: 2525 - 2186</span><br>
-                            <span style="font-size:15px; color:#9bb0c9;">Tạp chí Khoa học Lạc Hồng, 2025, 20,
+                        <div style="text-align:right; line-height:1.35;">
+                            <span style="font-size:15px; color:#2a4e8a; font-weight:bold;">ISSN: 2525 - 2186</span><br>
+                            <span style="font-size:15px; color:#2a4e8a;">Tạp chí Khoa học Lạc Hồng, 2025, 20,
                                 001-005</span>
                         </div>
                     </div>
@@ -689,103 +992,106 @@
                             id="preview-title-vi"></div>
                     </div>
                     <!-- Tác giả & địa chỉ -->
-                    <div style="text-align:right; font-size:17px; margin-top:8px; font-weight:200;"
+                    <div class="cover-authors"
                         id="preview-authors">
                     </div>
-                    <div style="text-align:right; font-size:15px; font-style:italic; margin-bottom:4px;">
+                    <div class="cover-affiliation">
                         Trường Đại học Lạc Hồng, Số 10 Huỳnh Văn Nghệ, phường Bửu Long, Biên Hòa, Đồng Nai, Vietnam
                     </div>
-                    <div style="text-align:right; font-size:15px; margin-bottom:16px;">
+                    <div class="cover-contact">
                         *Tác giả liên hệ: <span id="preview-contact" style="font-style:italic;"></span>
                     </div>
-                    <!-- Bảng thông tin + Tóm tắt tiếng Việt -->
-                    <table style="margin-top:16px; border-collapse:collapse; width:100%; font-size:14px;">
-                        <tr>
-                            <th
-                                style="width:32%; font-size:15px; background:#ffffff; border:1px solid #aaa; padding:8px;">
-                                THÔNG TIN BÀI BÁO</th>
-                            <th style="font-size:15px; background:#ffffff; border:1px solid #aaa; padding:8px;">TÓM TẮT
-                            </th>
-                        </tr>
-                        <tr>
-                            <td style="font-size:15px; vertical-align:top; border:1px solid #aaa; padding:8px;">
-                                Ngày nhận: <br>
-                                Ngày hoàn thiện: <br>
-                                Ngày chấp nhận: <br>
-                                Ngày đăng: <br><br>
-                                <b>TỪ KHÓA</b><br>
-                                <span id="preview-keywords-vi" style="line-height:1.4;"></span>
-                            </td>
-                            <td style="vertical-align:top; border:1px solid #aaa; padding:8px;"
-                                id="preview-abstract-vi">
-                            </td>
-                        </tr>
-                    </table>
+                    <div class="metadata-grid">
+                        <div class="metadata-sidebar">
+                            <h3>THÔNG TIN BÀI BÁO</h3>
+                            <div class="metadata-row"><span>Ngày nhận:</span><span></span></div>
+                            <div class="metadata-row"><span>Ngày hoàn thiện:</span><span></span></div>
+                            <div class="metadata-row"><span>Ngày chấp nhận:</span><span></span></div>
+                            <div class="metadata-row"><span>Ngày đăng:</span><span id="preview-published-vi"></span></div>
+                            <h3 style="margin-top:8px;">TỪ KHÓA</h3>
+                            <div class="metadata-keywords" id="preview-keywords-vi"></div>
+                        </div>
+                        <div class="metadata-abstract">
+                            <h3>TÓM TẮT</h3>
+                            <div class="metadata-abstract-content" id="preview-abstract-vi"></div>
+                        </div>
+                    </div>
                     <!-- Phần tiếng Anh – trang mới, bố cục giống tiếng Việt hơn (căn phải cho authors & contact) -->
-                    <div style="margin-top:60px; page-break-before: always; break-before: page;">
+                    <div style="margin-top:10px;">
                         <div style="text-align:center;">
                             <div style="font-size:20px; color:#2a4e8a; font-weight:bold; text-transform:uppercase; line-height:1.2;"
                                 id="preview-title-en"></div>
                         </div>
                         <!-- Tác giả & địa chỉ - căn phải giống phần VI -->
-                        <div style="text-align:right; font-size:17px; margin-top:12px; font-weight:500;"
+                        <div class="cover-authors"
                             id="preview-authors-en"></div>
-                        <div style="text-align:right; font-style:italic; font-size:15px; margin-bottom:4px;">
+                        <div class="cover-affiliation">
                             Lac Hong University, No. 10 Huynh Van Nghe Street, Buu Long Ward, Bien Hoa, Dong Nai
                             Province,
                             Vietnam
                         </div>
-                        <div style="text-align:right; font-size:15px; margin-bottom:24px;">
+                        <div class="cover-contact">
                             *Corresponding Author: <span id="preview-contact-en" style="font-style:italic;"></span>
                         </div>
-                        <!-- Bảng thông tin song song, full-width giống phần VI (không auto margin) -->
-                        <table style="margin-top:16px; border-collapse:collapse; width:100%; font-size:14px;">
-                            <tr>
-                                <th
-                                    style="width:35%; font-size:15px; background:#ffffff; border:1px solid #aaa; padding:10px;">
-                                    ARTICLE INFORMATION</th>
-                                <th style="font-size:15px; background:#ffffff; border:1px solid #aaa; padding:10px;">
-                                    ABSTRACT</th>
-                            </tr>
-                            <tr>
-                                <td style="font-size:15px; vertical-align:top; border:1px solid #aaa; padding:10px;">
-                                    Received: <br>
-                                    Revised: <br>
-                                    Accepted: <br>
-                                    Published: <br><br>
-                                    <b>KEYWORDS</b><br>
-                                    <span id="preview-keywords-en" style="line-height:1.5;"></span>
-                                </td>
-                                <td style="vertical-align:top; border:1px solid #aaa; padding:10px;"
-                                    id="preview-abstract-en"></td>
-                            </tr>
-                        </table>
-                    </div>
-                    <!-- Nội dung chính (body của bài báo) -->
-                    <div id="preview-content">
-                        <div class="form-group">
-                            <label>Nội dung chính:</label>
-                            <small style="color:#555; display:block; margin-bottom:8px;">
-                                • Sử dụng Heading 1 cho mục lớn (ví dụ: 2. MÔ HÌNH NGHIÊN CỨU – gõ số tay rồi apply
-                                Heading
-                                1).<br>
-                                • Heading 2 cho mục con (2.1 ...).<br>
-                                • Dùng numbered list nếu cần danh sách tự động 1. 2. 3.
-                            </small>
-                            <div id="editor" style="height: 400px; background:white;"></div>
-                            <!-- tăng height cho thoải mái -->
+                        <div class="metadata-grid english">
+                            <div class="metadata-sidebar">
+                                <h3>ARTICLE INFORMATION</h3>
+                                <div class="metadata-row"><span>Received:</span><span></span></div>
+                                <div class="metadata-row"><span>Revised:</span><span></span></div>
+                                <div class="metadata-row"><span>Accepted:</span><span></span></div>
+                                <div class="metadata-row"><span>Published:</span><span id="preview-published-en"></span></div>
+                                <h3 style="margin-top:8px;">KEYWORDS</h3>
+                                <div class="metadata-keywords" id="preview-keywords-en"></div>
+                            </div>
+                            <div class="metadata-abstract">
+                                <h3>ABSTRACT</h3>
+                                <div class="metadata-abstract-content" id="preview-abstract-en"></div>
+                            </div>
                         </div>
                     </div>
-
+                    </div>
                     <!-- Footer trang preview (đường kẻ + ngày xuất bản + số trang) -->
                     <div class="preview-page-footer odd">
                         <span class="footer-date" id="preview-footer-date">JSLHU, Issue 20, 2025</span>
                         <span class="footer-page">1</span>
                     </div>
                 </div> <!-- kết thúc .preview -->
+                <div id="content-pages"></div>
+                </div>
             </div>
         </div>
 
+    </div>
+
+    <div class="paragraph-dialog" id="paragraphDialog" role="dialog" aria-modal="true" aria-labelledby="paragraphDialogTitle">
+        <div class="paragraph-dialog-card">
+            <h3 id="paragraphDialogTitle"><i class="fas fa-paragraph"></i> Thiết lập đoạn văn</h3>
+            <div class="paragraph-settings-grid">
+                <label>Thụt dòng đầu (cm)
+                    <input type="number" id="paragraphFirstLine" min="-3" max="8" step="0.1" value="0">
+                </label>
+                <label>Thụt lề trái (cm)
+                    <input type="number" id="paragraphLeftIndent" min="0" max="8" step="0.1" value="0">
+                </label>
+                <label>Thụt lề phải (cm)
+                    <input type="number" id="paragraphRightIndent" min="0" max="8" step="0.1" value="0">
+                </label>
+                <label>Giãn dòng
+                    <input type="number" id="paragraphLineHeight" min="0.5" max="4" step="0.05" value="1.5">
+                </label>
+                <label>Khoảng cách trước (pt)
+                    <input type="number" id="paragraphSpaceBefore" min="0" max="72" step="1" value="0">
+                </label>
+                <label>Khoảng cách sau (pt)
+                    <input type="number" id="paragraphSpaceAfter" min="0" max="72" step="1" value="6">
+                </label>
+            </div>
+            <div class="paragraph-dialog-actions">
+                <button type="button" id="paragraphResetBtn">Đặt lại</button>
+                <button type="button" id="paragraphCancelBtn">Hủy</button>
+                <button type="button" id="paragraphApplyBtn">Áp dụng</button>
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -837,6 +1143,32 @@
             themeBtn.innerHTML = newTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
         });
 
+        // Dấu ngắt trang được lưu trực tiếp trong nội dung Quill.
+        const BlockEmbed = Quill.import('blots/block/embed');
+        class PageBreakBlot extends BlockEmbed {
+            static create() {
+                const node = super.create();
+                node.setAttribute('contenteditable', 'false');
+                node.setAttribute('aria-label', 'Ngắt trang');
+                return node;
+            }
+        }
+        PageBreakBlot.blotName = 'pageBreak';
+        PageBreakBlot.tagName = 'div';
+        PageBreakBlot.className = 'editor-page-break';
+        Quill.register(PageBreakBlot);
+
+        const Parchment = Quill.import('parchment');
+        const paragraphScope = { scope: Parchment.Scope.BLOCK };
+        const LineHeightStyle = new Parchment.Attributor.Style('lineHeight', 'line-height', paragraphScope);
+        const TextIndentStyle = new Parchment.Attributor.Style('textIndent', 'text-indent', paragraphScope);
+        const MarginLeftStyle = new Parchment.Attributor.Style('marginLeft', 'margin-left', paragraphScope);
+        const MarginRightStyle = new Parchment.Attributor.Style('marginRight', 'margin-right', paragraphScope);
+        const SpaceBeforeStyle = new Parchment.Attributor.Style('spaceBefore', 'margin-top', paragraphScope);
+        const SpaceAfterStyle = new Parchment.Attributor.Style('spaceAfter', 'margin-bottom', paragraphScope);
+        [LineHeightStyle, TextIndentStyle, MarginLeftStyle, MarginRightStyle, SpaceBeforeStyle, SpaceAfterStyle]
+            .forEach(format => Quill.register(format, true));
+
         // Khởi tạo Quill
         var quill = new Quill('#editor', {
             theme: 'snow',
@@ -845,14 +1177,95 @@
                     [{ 'header': [1, 2, 3, false] }],  // Heading
                     ['bold', 'italic', 'underline', 'strike'],  // Basic format
                     [{ 'align': [] }],  // Thêm nút căn chỉnh (left, center, right, justify)
+                    [{ 'indent': '-1' }, { 'indent': '+1' }],
                     [{ 'list': 'ordered' }, { 'list': 'bullet' }],
                     ['link', 'image'],
                     ['clean']
                 ],
                 imageResize: {
                     displaySize: true
+                },
+                keyboard: {
+                    bindings: {
+                        pageBreak: {
+                            key: 13,
+                            shortKey: true,
+                            handler: function (range) {
+                                quill.insertEmbed(range.index, 'pageBreak', true, 'user');
+                                quill.insertText(range.index + 1, '\n', 'user');
+                                quill.setSelection(range.index + 2, 0, 'silent');
+                                return false;
+                            }
+                        }
+                    }
                 }
             }
+        });
+
+        document.getElementById('insertPageBreakBtn').addEventListener('click', function () {
+            const range = quill.getSelection(true) || { index: quill.getLength() - 1 };
+            quill.insertEmbed(range.index, 'pageBreak', true, 'user');
+            quill.insertText(range.index + 1, '\n', 'user');
+            quill.setSelection(range.index + 2, 0, 'silent');
+        });
+
+        const paragraphDialog = document.getElementById('paragraphDialog');
+        let paragraphRange = { index: 0, length: 0 };
+        const paragraphFields = {
+            textIndent: document.getElementById('paragraphFirstLine'),
+            marginLeft: document.getElementById('paragraphLeftIndent'),
+            marginRight: document.getElementById('paragraphRightIndent'),
+            lineHeight: document.getElementById('paragraphLineHeight'),
+            spaceBefore: document.getElementById('paragraphSpaceBefore'),
+            spaceAfter: document.getElementById('paragraphSpaceAfter')
+        };
+
+        function numericFormatValue(value, fallback = 0) {
+            const parsed = parseFloat(value);
+            return Number.isFinite(parsed) ? parsed : fallback;
+        }
+
+        function openParagraphDialog() {
+            paragraphRange = quill.getSelection(true) || { index: 0, length: 0 };
+            const format = quill.getFormat(paragraphRange.index, paragraphRange.length || 1);
+            paragraphFields.textIndent.value = numericFormatValue(format.textIndent, 0);
+            paragraphFields.marginLeft.value = numericFormatValue(format.marginLeft, 0);
+            paragraphFields.marginRight.value = numericFormatValue(format.marginRight, 0);
+            paragraphFields.lineHeight.value = String(numericFormatValue(format.lineHeight, 1.5));
+            paragraphFields.spaceBefore.value = numericFormatValue(format.spaceBefore, 0);
+            paragraphFields.spaceAfter.value = numericFormatValue(format.spaceAfter, 6);
+            paragraphDialog.classList.add('open');
+        }
+
+        function closeParagraphDialog() {
+            paragraphDialog.classList.remove('open');
+            quill.focus();
+        }
+
+        document.getElementById('paragraphSettingsBtn').addEventListener('click', openParagraphDialog);
+        document.getElementById('paragraphCancelBtn').addEventListener('click', closeParagraphDialog);
+        paragraphDialog.addEventListener('click', event => {
+            if (event.target === paragraphDialog) closeParagraphDialog();
+        });
+        document.getElementById('paragraphResetBtn').addEventListener('click', () => {
+            paragraphFields.textIndent.value = 0;
+            paragraphFields.marginLeft.value = 0;
+            paragraphFields.marginRight.value = 0;
+            paragraphFields.lineHeight.value = '1.5';
+            paragraphFields.spaceBefore.value = 0;
+            paragraphFields.spaceAfter.value = 6;
+        });
+        document.getElementById('paragraphApplyBtn').addEventListener('click', () => {
+            const formats = {
+                textIndent: `${numericFormatValue(paragraphFields.textIndent.value)}cm`,
+                marginLeft: `${numericFormatValue(paragraphFields.marginLeft.value)}cm`,
+                marginRight: `${numericFormatValue(paragraphFields.marginRight.value)}cm`,
+                lineHeight: String(numericFormatValue(paragraphFields.lineHeight.value, 1.5)),
+                spaceBefore: `${numericFormatValue(paragraphFields.spaceBefore.value)}pt`,
+                spaceAfter: `${numericFormatValue(paragraphFields.spaceAfter.value, 6)}pt`
+            };
+            quill.formatLine(paragraphRange.index, paragraphRange.length || 1, formats, 'user');
+            closeParagraphDialog();
         });
         // Xử lý paste hình ảnh từ clipboard
         quill.root.addEventListener('paste', function (e) {
@@ -880,6 +1293,141 @@
 
         // Để resize ảnh: thêm module imageResize (dùng CDN)
 
+        function footerDateText() {
+            const publishDateEl = document.getElementById('publishDate');
+            return publishDateEl && publishDateEl.value
+                ? "JSLHU, Issue 20, " + publishDateEl.value
+                : "JSLHU, Issue 20, 2025";
+        }
+
+        function createArticlePage(pageNumber) {
+            const page = document.createElement('section');
+            page.className = 'preview article-page';
+            page.setAttribute('aria-label', 'Trang ' + pageNumber);
+
+            const header = document.createElement('div');
+            header.className = 'article-running-header ' + (pageNumber % 2 ? 'odd' : 'even');
+            if (pageNumber % 2 === 0) {
+                header.textContent = document.getElementById('title_vi').value.trim() ||
+                    document.getElementById('title_en').value.trim() || 'TIÊU ĐỀ BÀI BÁO';
+            } else {
+                header.textContent = document.getElementById('authors').value.trim() || 'Tác giả';
+            }
+            page.appendChild(header);
+
+            const content = document.createElement('div');
+            content.className = 'article-page-content';
+            page.appendChild(content);
+
+            const footer = document.createElement('div');
+            footer.className = 'preview-page-footer ' + (pageNumber % 2 ? 'odd' : 'even');
+            footer.innerHTML = '<span class="footer-date"></span><span class="footer-page"></span>';
+            footer.querySelector('.footer-date').textContent = footerDateText();
+            footer.querySelector('.footer-page').textContent = pageNumber;
+            page.appendChild(footer);
+            document.getElementById('content-pages').appendChild(page);
+            return content;
+        }
+
+        function pageHasOverflow(content) {
+            return content.scrollWidth > content.clientWidth + 2 || content.scrollHeight > content.clientHeight + 2;
+        }
+
+        function appendTextBlockAcrossPages(sourceNode, state) {
+            const words = (sourceNode.textContent || '').trim().split(/\s+/).filter(Boolean);
+            let offset = 0;
+            while (offset < words.length) {
+                let low = 1;
+                let high = words.length - offset;
+                let best = 0;
+                while (low <= high) {
+                    const middle = Math.floor((low + high) / 2);
+                    const candidate = sourceNode.cloneNode(false);
+                    candidate.textContent = words.slice(offset, offset + middle).join(' ');
+                    state.content.appendChild(candidate);
+                    const fits = !pageHasOverflow(state.content);
+                    candidate.remove();
+                    if (fits) {
+                        best = middle;
+                        low = middle + 1;
+                    } else {
+                        high = middle - 1;
+                    }
+                }
+
+                if (!best) {
+                    if (state.content.childElementCount) {
+                        state.pageNumber += 1;
+                        state.content = createArticlePage(state.pageNumber);
+                        continue;
+                    }
+                    best = 1;
+                }
+
+                const fragment = sourceNode.cloneNode(false);
+                fragment.textContent = words.slice(offset, offset + best).join(' ');
+                state.content.appendChild(fragment);
+                offset += best;
+                if (offset < words.length) {
+                    state.pageNumber += 1;
+                    state.content = createArticlePage(state.pageNumber);
+                }
+            }
+        }
+
+        function paginateContent(html) {
+            const pages = document.getElementById('content-pages');
+            pages.innerHTML = '';
+            const source = document.createElement('div');
+            source.innerHTML = html;
+            const state = { pageNumber: 2, content: createArticlePage(2) };
+            const nodes = Array.from(source.children);
+
+            const hasMeaningfulContent = nodes.some(function (node) {
+                return node.classList.contains('editor-page-break') ||
+                    node.textContent.trim() || node.querySelector('img, table');
+            });
+            if (!hasMeaningfulContent) {
+                state.content.innerHTML = '<p style="text-align:center;color:#999">Nội dung bài báo bắt đầu từ trang 2.</p>';
+                return;
+            }
+
+            nodes.forEach(function (node) {
+                if (node.classList.contains('editor-page-break')) {
+                    state.pageNumber += 1;
+                    state.content = createArticlePage(state.pageNumber);
+                    return;
+                }
+
+                const clone = node.cloneNode(true);
+                state.content.appendChild(clone);
+                if (!pageHasOverflow(state.content)) return;
+                clone.remove();
+
+                if (state.content.childElementCount) {
+                    state.pageNumber += 1;
+                    state.content = createArticlePage(state.pageNumber);
+                    state.content.appendChild(clone);
+                    if (!pageHasOverflow(state.content)) return;
+                    clone.remove();
+                }
+
+                if (/^(P|BLOCKQUOTE)$/i.test(node.tagName) && node.textContent.trim()) {
+                    appendTextBlockAcrossPages(node, state);
+                } else {
+                    state.content.appendChild(clone);
+                }
+            });
+        }
+
+        let paginationFrame;
+        function schedulePagination(content) {
+            cancelAnimationFrame(paginationFrame);
+            paginationFrame = requestAnimationFrame(function () {
+                paginateContent(content);
+            });
+        }
+
         function updatePreview() {
             const title_vi = document.getElementById('title_vi').value.trim();
             const title_en = document.getElementById('title_en').value.trim();
@@ -899,7 +1447,7 @@
             // Tiếng Anh
             document.getElementById('preview-title-en').textContent = title_en || "ARTICLE TITLE";
             document.getElementById('preview-abstract-en').innerHTML = abstract_en.replace(/\n/g, '<br>') || "Enter English abstract...";
-            document.getElementById('preview-keywords-en').innerHTML = keywords_en.replace(/;/g, '; ') || "Enter keywords...";
+            document.getElementById('preview-keywords-en').innerHTML = keywords_en.replace(/;\s*/g, ';<br>') || "Enter keywords...";
 
             // Chung
             document.getElementById('preview-authors').textContent = authors || "Tác giả";
@@ -907,17 +1455,19 @@
             document.getElementById('preview-authors-en').textContent = authors || "Authors";
             document.getElementById('preview-contact-en').textContent = contact || "email@domain.com";
 
-            // Nội dung chính
-            document.getElementById('preview-content').innerHTML = content || "<p style='text-align:center; color:#999;'>Nội dung bài báo sẽ hiển thị ở đây (sử dụng heading trong editor để định dạng mục 2., 2.1...)</p>";
+            // Nội dung chính luôn bắt đầu ở trang 2 và tự phân trang theo khổ A4.
+            schedulePagination(content);
 
             // Cập nhật ngày xuất bản ở footer preview
-            const publishDateEl = document.getElementById('publishDate');
-            let footerDateStr = "JSLHU, Issue 20, 2025";
-            if (publishDateEl && publishDateEl.value) {
-                footerDateStr = "JSLHU, Issue 20, " + publishDateEl.value;
-            }
+            let footerDateStr = footerDateText();
             const footerDateNode = document.getElementById('preview-footer-date');
             if (footerDateNode) footerDateNode.textContent = footerDateStr;
+            const publishValue = document.getElementById('publishDate')?.value || '';
+            document.getElementById('preview-published-vi').textContent = publishValue;
+            document.getElementById('preview-published-en').textContent = publishValue;
+            document.querySelectorAll('#content-pages .footer-date').forEach(function (node) {
+                node.textContent = footerDateStr;
+            });
         }
 
         // Real-time update
@@ -986,65 +1536,430 @@ Hãy phân tích chi tiết và đưa ra gợi ý cải thiện.
             }
         };
 
-        // Xuất Word
-        document.getElementById('exportBtn').onclick = async () => {
-            const fileInput = document.getElementById('templateFile');
-            if (!fileInput.files?.[0]) {
-                alert("Vui lòng chọn file template.docx!");
-                return;
+        // Helpers tạo DOCX thuần OOXML, không phụ thuộc template.
+        function xmlEscape(value) {
+            return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+        }
+
+        function wordRun(text, options = {}) {
+            if (!text) return '';
+            const props = [
+                options.bold ? '<w:b/>' : '', options.italic ? '<w:i/>' : '',
+                options.underline ? '<w:u w:val="single"/>' : '',
+                options.color ? `<w:color w:val="${options.color}"/>` : '',
+                options.size ? `<w:sz w:val="${options.size}"/><w:szCs w:val="${options.size}"/>` : '',
+                options.shading ? `<w:shd w:val="clear" w:color="auto" w:fill="${options.shading}"/>` : ''
+            ].join('');
+            const body = String(text).split('\n').map((part, index) =>
+                `${index ? '<w:br/>' : ''}<w:t xml:space="preserve">${xmlEscape(part)}</w:t>`
+            ).join('');
+            return `<w:r><w:rPr>${props}</w:rPr>${body}</w:r>`;
+        }
+
+        function wordParagraph(content, options = {}) {
+            const alignment = options.align ? `<w:jc w:val="${options.align}"/>` : '';
+            const spacing = `<w:spacing w:before="${options.before || 0}" w:after="${options.after ?? 100}" w:line="${options.line || 240}" w:lineRule="auto"/>`;
+            const firstLine = options.firstLine < 0
+                ? `w:hanging="${Math.abs(options.firstLine)}"` : `w:firstLine="${options.firstLine || 0}"`;
+            const indent = options.firstLine || options.left || options.right
+                ? `<w:ind ${firstLine} w:left="${options.left || 0}" w:right="${options.right || 0}"/>` : '';
+            const keep = options.keepNext ? '<w:keepNext/>' : '';
+            const border = options.bottomBorder ? '<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="333333"/></w:pBdr>' : '';
+            const style = options.style ? `<w:pStyle w:val="${options.style}"/>` : '';
+            return `<w:p><w:pPr>${style}${alignment}${indent}${spacing}${keep}${border}</w:pPr>${content}</w:p>`;
+        }
+
+        function cssLengthToTwips(value) {
+            const number = parseFloat(value);
+            if (!Number.isFinite(number)) return 0;
+            if (String(value).includes('cm')) return Math.round(number * 567);
+            if (String(value).includes('pt')) return Math.round(number * 20);
+            if (String(value).includes('px')) return Math.round(number * 15);
+            return Math.round(number * 20);
+        }
+
+        function wordParagraphOptions(node, base = {}) {
+            const style = node.style || {};
+            const lineHeight = parseFloat(style.lineHeight);
+            const classIndent = Array.from(node.classList || []).map(name => name.match(/^ql-indent-(\d+)$/))
+                .find(Boolean);
+            const toolbarIndent = classIndent ? Number(classIndent[1]) * 567 : 0;
+            return {
+                ...base,
+                firstLine: cssLengthToTwips(style.textIndent),
+                left: cssLengthToTwips(style.marginLeft) + toolbarIndent,
+                right: cssLengthToTwips(style.marginRight),
+                before: style.marginTop ? cssLengthToTwips(style.marginTop) : (base.before || 0),
+                after: style.marginBottom ? cssLengthToTwips(style.marginBottom) : (base.after ?? 100),
+                line: Number.isFinite(lineHeight) ? Math.round(lineHeight * 240) : (base.line || 260)
+            };
+        }
+
+        function inlineHtmlToWord(node, inherited = {}) {
+            if (node.nodeType === Node.TEXT_NODE) return wordRun(node.nodeValue, inherited);
+            if (node.nodeType !== Node.ELEMENT_NODE) return '';
+            if (node.tagName === 'BR') return '<w:r><w:br/></w:r>';
+            const next = { ...inherited };
+            if (['STRONG', 'B'].includes(node.tagName)) next.bold = true;
+            if (['EM', 'I'].includes(node.tagName)) next.italic = true;
+            if (node.tagName === 'U') next.underline = true;
+            return Array.from(node.childNodes).map(child => inlineHtmlToWord(child, next)).join('');
+        }
+
+        function wordTable(rows, widths, options = {}) {
+            const total = widths.reduce((sum, value) => sum + value, 0);
+            const cellMargin = options.cellMargin ?? 100;
+            const verticalAlign = options.verticalAlign || 'top';
+            const grid = widths.map(width => `<w:gridCol w:w="${width}"/>`).join('');
+            const rowProperties = options.rowHeight
+                ? `<w:trPr><w:trHeight w:val="${options.rowHeight}" w:hRule="exact"/></w:trPr>` : '';
+            const body = rows.map(row => `<w:tr>${rowProperties}${row.map((cell, index) => {
+                const value = typeof cell === 'object' ? cell : { content: cell };
+                const shading = value.shading ? `<w:shd w:val="clear" w:color="auto" w:fill="${value.shading}"/>` : '';
+                return `<w:tc><w:tcPr><w:tcW w:w="${widths[index]}" w:type="dxa"/>${shading}<w:vAlign w:val="${value.verticalAlign || verticalAlign}"/><w:tcMar><w:top w:w="${cellMargin}" w:type="dxa"/><w:left w:w="${cellMargin}" w:type="dxa"/><w:bottom w:w="${cellMargin}" w:type="dxa"/><w:right w:w="${cellMargin}" w:type="dxa"/></w:tcMar></w:tcPr>${value.content}</w:tc>`;
+            }).join('')}</w:tr>`).join('');
+            const borders = options.borders === false
+                ? `<w:tblBorders><w:top w:val="${options.topBorder ? 'single' : 'nil'}" w:sz="${options.borderSize || 6}" w:color="${options.borderColor || '222222'}"/><w:left w:val="nil"/><w:bottom w:val="${options.bottomBorder ? 'single' : 'nil'}" w:sz="${options.borderSize || 6}" w:color="${options.borderColor || '222222'}"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders>`
+                : '<w:tblBorders><w:top w:val="single" w:sz="4" w:color="999999"/><w:left w:val="single" w:sz="4" w:color="999999"/><w:bottom w:val="single" w:sz="4" w:color="999999"/><w:right w:val="single" w:sz="4" w:color="999999"/><w:insideH w:val="single" w:sz="4" w:color="999999"/><w:insideV w:val="single" w:sz="4" w:color="999999"/></w:tblBorders>';
+            return `<w:tbl><w:tblPr><w:tblW w:w="${total}" w:type="dxa"/><w:tblLayout w:type="fixed"/>${borders}</w:tblPr><w:tblGrid>${grid}</w:tblGrid>${body}</w:tbl>`;
+        }
+
+        function quillHtmlToWordXml(html, imageMap = new Map()) {
+            const source = document.createElement('div');
+            source.innerHTML = html;
+            const blocks = [];
+            Array.from(source.children).forEach(node => {
+                if (node.classList.contains('editor-page-break')) {
+                    blocks.push('<w:p><w:r><w:br w:type="page"/></w:r></w:p>');
+                    return;
+                }
+                const align = node.classList.contains('ql-align-center') ? 'center' :
+                    node.classList.contains('ql-align-right') ? 'right' :
+                        node.classList.contains('ql-align-justify') ? 'both' : 'both';
+                if (/^H[1-3]$/.test(node.tagName)) {
+                    blocks.push(wordParagraph(inlineHtmlToWord(node, { bold: true, color: '2A4E8A', size: 20 }), wordParagraphOptions(node, {
+                        style: `Heading${node.tagName.slice(1)}`, align: 'left', before: 160, after: 80, keepNext: true
+                    })));
+                } else if (['OL', 'UL'].includes(node.tagName)) {
+                    Array.from(node.children).forEach((item, index) => {
+                        const marker = node.tagName === 'OL' ? `${index + 1}. ` : '• ';
+                        blocks.push(wordParagraph(wordRun(marker, { bold: node.tagName === 'OL' }) + inlineHtmlToWord(item), { align: 'both', after: 60 }));
+                    });
+                } else if (node.tagName === 'TABLE') {
+                    const rows = Array.from(node.rows).map(row => Array.from(row.cells).map(cell =>
+                        wordParagraph(inlineHtmlToWord(cell), { align: 'left', after: 40 })
+                    ));
+                    const count = Math.max(1, ...(rows.map(row => row.length)));
+                    const widths = Array(count).fill(Math.floor(4510 / count));
+                    blocks.push(wordTable(rows.map(row => {
+                        while (row.length < count) row.push(wordParagraph('', {}));
+                        return row;
+                    }), widths));
+                } else if (node.tagName === 'IMG' || node.querySelector(':scope > img')) {
+                    const image = node.tagName === 'IMG' ? node : node.querySelector(':scope > img');
+                    const imageInfo = imageMap.get(image.getAttribute('src'));
+                    blocks.push(imageInfo
+                        ? wordParagraph(imageDrawingRun(imageInfo.relationshipId, imageInfo.width, imageInfo.height, imageInfo.id), { align: 'center', after: 100 })
+                        : wordParagraph(wordRun('[Hình ảnh trong nội dung]', { italic: true, color: '666666' }), { align: 'center' }));
+                } else {
+                    blocks.push(wordParagraph(inlineHtmlToWord(node), wordParagraphOptions(node, { align, after: 100, line: 260 })));
+                }
+            });
+            return blocks.join('');
+        }
+
+        function sectionProperties(options = {}) {
+            const refs = options.references || '';
+            const columns = options.columns === 2 ? '<w:cols w:num="2" w:space="567"/>' : '<w:cols w:num="1"/>';
+            return `<w:sectPr>${refs}<w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="907" w:right="1021" w:bottom="680" w:left="1247" w:header="400" w:footer="400" w:gutter="0"/>${columns}${options.nextPage ? '<w:type w:val="nextPage"/>' : ''}</w:sectPr>`;
+        }
+
+        function pageFieldRun() {
+            const props = '<w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr>';
+            return `<w:r>${props}<w:fldChar w:fldCharType="begin" w:dirty="true"/></w:r>` +
+                `<w:r>${props}<w:instrText xml:space="preserve"> PAGE </w:instrText></w:r>` +
+                `<w:r>${props}<w:fldChar w:fldCharType="separate"/></w:r>` +
+                `<w:r>${props}<w:t>1</w:t></w:r>` +
+                `<w:r>${props}<w:fldChar w:fldCharType="end"/></w:r>`;
+        }
+
+        function imageDrawingRun(relationshipId, width = 650000, height = 650000, id = 1) {
+            return `<w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${width}" cy="${height}"/><wp:docPr id="${id}" name="JSLHU Image ${id}"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="${id}" name="image-${id}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${relationshipId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${width}" cy="${height}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+        }
+
+        async function prepareContentImages(zip, html) {
+            const source = document.createElement('div');
+            source.innerHTML = html;
+            const map = new Map();
+            const relationships = [];
+            const images = Array.from(source.querySelectorAll('img'));
+            for (let index = 0; index < images.length; index++) {
+                const src = images[index].getAttribute('src');
+                if (!src || map.has(src)) continue;
+                try {
+                    let extension = 'png';
+                    let data;
+                    let options = {};
+                    const match = src.match(/^data:image\/(png|jpe?g);base64,(.+)$/i);
+                    if (match) {
+                        extension = match[1].toLowerCase().replace('jpeg', 'jpg');
+                        data = match[2];
+                        options = { base64: true };
+                    } else {
+                        const response = await fetch(src);
+                        if (!response.ok) continue;
+                        const type = response.headers.get('content-type') || '';
+                        extension = type.includes('jpeg') ? 'jpg' : 'png';
+                        data = await response.arrayBuffer();
+                    }
+                    const number = map.size + 1;
+                    const relationshipId = `rIdContentImage${number}`;
+                    const fileName = `content-${number}.${extension}`;
+                    zip.file(`word/media/${fileName}`, data, options);
+                    relationships.push(`<Relationship Id="${relationshipId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${fileName}"/>`);
+                    map.set(src, { relationshipId, width: 2700000, height: 1800000, id: number + 1 });
+                } catch (error) {
+                    console.warn('Không thể nhúng ảnh nội dung:', error);
+                }
             }
+            return { map, relationships: relationships.join('') };
+        }
+
+        function headerXml(text, alignment) {
+            return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">${wordParagraph(wordRun(text, { italic: true, size: 16 }), { align: alignment, bottomBorder: true, after: 0 })}</w:hdr>`;
+        }
+
+        function footerXml(dateText, even) {
+            const pageCell = `<w:tc><w:tcPr><w:tcW w:w="430" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="666666"/><w:vAlign w:val="center"/><w:tcMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tcMar></w:tcPr>${wordParagraph(pageFieldRun(), { align: 'center', after: 0, line: 200 })}</w:tc>`;
+            const dateCell = `<w:tc><w:tcPr><w:tcW w:w="3500" w:type="dxa"/><w:vAlign w:val="center"/><w:tcMar><w:top w:w="0" w:type="dxa"/><w:left w:w="100" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="100" w:type="dxa"/></w:tcMar></w:tcPr>${wordParagraph(wordRun(dateText, { italic: true, size: 16 }), { align: even ? 'left' : 'right', after: 0, line: 200 })}</w:tc>`;
+            const spacerCell = '<w:tc><w:tcPr><w:tcW w:w="5708" w:type="dxa"/><w:tcMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tcMar></w:tcPr><w:p/></w:tc>';
+            const cells = even ? pageCell + dateCell + spacerCell : spacerCell + dateCell + pageCell;
+            const grid = even
+                ? '<w:gridCol w:w="430"/><w:gridCol w:w="3500"/><w:gridCol w:w="5708"/>'
+                : '<w:gridCol w:w="5708"/><w:gridCol w:w="3500"/><w:gridCol w:w="430"/>';
+            const table = `<w:tbl><w:tblPr><w:tblW w:w="9638" w:type="dxa"/><w:tblInd w:w="0" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders><w:top w:val="single" w:sz="10" w:color="222222"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>${grid}</w:tblGrid><w:tr><w:trPr><w:trHeight w:val="430" w:hRule="exact"/></w:trPr>${cells}</w:tr></w:tbl>`;
+            return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">${table}<w:p/></w:ftr>`;
+        }
+
+        function coverXml(data, logoRun = '') {
+            const journalHeader = wordTable([[
+                {
+                    shading: '91AAC4',
+                    content: wordParagraph(logoRun, { align: 'center', after: 0, line: 180 })
+                },
+                wordParagraph(wordRun('JOURNAL OF SCIENCE', { color: '1F4E79', size: 32 }), { left: 120, after: 0, line: 260 }) +
+                wordParagraph(wordRun('OF LAC HONG UNIVERSITY', { bold: true, color: '1F4E79', size: 18 }), { left: 120, after: 0, line: 180 }),
+                wordParagraph(wordRun('ISSN: 2525 - 2186', { bold: true, color: '1F4E79', size: 16 }), { align: 'right', after: 50, line: 210 }) +
+                wordParagraph(wordRun('Tạp chí Khoa học Lạc Hồng, 2025, 20, 001-005', { color: '1F4E79', size: 14 }), { align: 'right', after: 0, line: 190 })
+            ]], [705, 3513, 5184], {
+                borders: false, bottomBorder: true, borderColor: '1F3864', borderSize: 4,
+                cellMargin: 0, verticalAlign: 'center', rowHeight: 709
+            });
+            const viInfo = wordTable([[
+                wordParagraph(wordRun('THÔNG TIN BÀI BÁO', { bold: true, size: 18 }), { align: 'left', bottomBorder: true, after: 70 }) +
+                wordParagraph(wordRun('Ngày nhận:\nNgày hoàn thiện:\nNgày chấp nhận:\nNgày đăng: ' + data.publishDate, { size: 16 }), { align: 'left', after: 90, line: 250 }) +
+                wordParagraph(wordRun('TỪ KHÓA', { bold: true, size: 18 }), { align: 'left', bottomBorder: true, after: 60 }) +
+                wordParagraph(wordRun(data.keywords.replace(/;\s*/g, ';\n'), { size: 16 }), { align: 'left', after: 0, line: 250 }),
+                wordParagraph(wordRun('TÓM TẮT', { bold: true, size: 18 }), { align: 'left', bottomBorder: true, after: 70 }) +
+                wordParagraph(wordRun(data.abstract, { size: 17 }), { align: 'both', after: 0, line: 245 })
+            ]], [3100, 6538], { borders: false, topBorder: true });
+            const enInfo = wordTable([[
+                wordParagraph(wordRun('ARTICLE INFORMATION', { bold: true, size: 18 }), { align: 'left', bottomBorder: true, after: 70 }) +
+                wordParagraph(wordRun('Received:\nRevised:\nAccepted:\nPublished: ' + data.publishDate, { size: 16 }), { align: 'left', after: 90, line: 250 }) +
+                wordParagraph(wordRun('KEYWORDS', { bold: true, size: 18 }), { align: 'left', bottomBorder: true, after: 60 }) +
+                wordParagraph(wordRun(data.keywords_en.replace(/;\s*/g, ';\n'), { size: 16 }), { align: 'left', after: 0, line: 250 }),
+                wordParagraph(wordRun('ABSTRACT', { bold: true, size: 18 }), { align: 'left', bottomBorder: true, after: 70 }) +
+                wordParagraph(wordRun(data.abstract_en, { size: 17 }), { align: 'both', after: 0, line: 245 })
+            ]], [3100, 6538], { borders: false, topBorder: true, bottomBorder: true });
+            return journalHeader +
+                wordParagraph(wordRun(data.title || 'TIÊU ĐỀ BÀI BÁO', { bold: true, color: '2A4E8A', size: 28 }), { align: 'center', before: 160, after: 100 }) +
+                wordParagraph(wordRun(data.authors || 'Tác giả', { size: 22 }), { align: 'right', after: 40 }) +
+                wordParagraph(wordRun('Trường Đại học Lạc Hồng, Số 10 Huỳnh Văn Nghệ, phường Bửu Long, Biên Hòa, Đồng Nai, Vietnam', { italic: true, size: 18 }), { align: 'right', after: 30 }) +
+                wordParagraph(wordRun('*Tác giả liên hệ: ' + data.contact, { size: 18 }), { align: 'right', after: 120 }) + viInfo +
+                wordParagraph(wordRun(data.title_en || 'ARTICLE TITLE', { bold: true, color: '2A4E8A', size: 26 }), { align: 'center', before: 160, after: 80 }) +
+                wordParagraph(wordRun(data.authors || 'Authors', { size: 20 }), { align: 'right', after: 30 }) +
+                wordParagraph(wordRun('Lac Hong University, Bien Hoa, Dong Nai Province, Vietnam', { italic: true, size: 18 }), { align: 'right', after: 30 }) +
+                wordParagraph(wordRun('*Corresponding Author: ' + data.contact, { size: 18 }), { align: 'right', after: 100 }) + enInfo;
+        }
+
+        function currentExportData() {
+            return {
+                title: document.getElementById('title_vi').value.trim(), title_en: document.getElementById('title_en').value.trim(),
+                authors: document.getElementById('authors').value.trim(), contact: document.getElementById('contact').value.trim(),
+                abstract: document.getElementById('abstract_vi').value.trim(), abstract_en: document.getElementById('abstract_en').value.trim(),
+                keywords: document.getElementById('keywords_vi').value.trim(), keywords_en: document.getElementById('keywords_en').value.trim(),
+                date: footerDateText(), publishDate: document.getElementById('publishDate').value.trim(),
+                contentHtml: quill.root.innerHTML, contentText: quill.getText().trim()
+            };
+        }
+
+        async function buildDefaultDocx(data) {
+            const zip = new PizZip();
+            let logoLoaded = false;
+            try {
+                const logo = document.querySelector('#cover-page img');
+                if (!logo.complete || !logo.naturalWidth) {
+                    await new Promise((resolve, reject) => {
+                        logo.addEventListener('load', resolve, { once: true });
+                        logo.addEventListener('error', reject, { once: true });
+                    });
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = logo.naturalWidth;
+                canvas.height = logo.naturalHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(logo, 0, 0);
+
+                // Giữ nguyên toàn bộ logo: biểu tượng, tên trường, khẩu hiệu và chữ JSLHU.
+                zip.file('word/media/image.png', canvas.toDataURL('image/png').split(',')[1], { base64: true });
+                logoLoaded = true;
+            } catch (error) {
+                console.warn('Không thể đọc đầy đủ logo, sẽ dùng ảnh gốc:', error);
+            }
+            if (!logoLoaded) {
+                try {
+                    const response = await fetch('image.png');
+                    if (response.ok) {
+                        zip.file('word/media/image.png', await response.arrayBuffer());
+                        logoLoaded = true;
+                    }
+                } catch (error) {
+                    console.warn('Không thể nhúng logo vào DOCX:', error);
+                }
+            }
+            const contentImages = await prepareContentImages(zip, data.contentHtml);
+            const content = quillHtmlToWordXml(data.contentHtml, contentImages.map);
+            const refs = '<w:headerReference w:type="default" r:id="rIdHeaderOdd"/><w:headerReference w:type="even" r:id="rIdHeaderEven"/><w:footerReference w:type="default" r:id="rIdFooterOdd"/><w:footerReference w:type="even" r:id="rIdFooterEven"/>';
+            const coverRefs = '<w:footerReference w:type="default" r:id="rIdFooterOdd"/>';
+            const coverSection = `<w:p><w:pPr>${sectionProperties({ columns: 1, nextPage: true, references: coverRefs })}</w:pPr></w:p>`;
+            const finalSection = sectionProperties({ columns: 2, references: refs });
+            const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${coverXml(data, logoLoaded ? imageDrawingRun('rIdLogo', 410000, 406525, 1) : '')}${coverSection}${content || wordParagraph(wordRun('Nội dung bài báo bắt đầu từ trang 2.', { italic: true, color: '777777' }), { align: 'center' })}${finalSection}</w:body></w:document>`;
+            const relationships = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rIdSettings" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/><Relationship Id="rIdHeaderOdd" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header-odd.xml"/><Relationship Id="rIdHeaderEven" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header-even.xml"/><Relationship Id="rIdHeaderFirst" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header-first.xml"/><Relationship Id="rIdFooterOdd" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer-odd.xml"/><Relationship Id="rIdFooterEven" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer-even.xml"/>${logoLoaded ? '<Relationship Id="rIdLogo" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image.png"/>' : ''}${contentImages.relationships}</Relationships>`;
+            const hasImages = logoLoaded || contentImages.map.size > 0;
+            const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>${hasImages ? '<Default Extension="png" ContentType="image/png"/><Default Extension="jpg" ContentType="image/jpeg"/>' : ''}<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/word/header-odd.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/header-even.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/header-first.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/footer-odd.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/><Override PartName="/word/footer-even.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>`;
+            const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="20"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="100" w:line="260" w:lineRule="auto"/><w:jc w:val="both"/></w:pPr></w:pPrDefault></w:docDefaults>${[1,2,3].map(level => `<w:style w:type="paragraph" w:styleId="Heading${level}"><w:name w:val="heading ${level}"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:before="160" w:after="80"/></w:pPr><w:rPr><w:b/><w:sz w:val="20"/><w:color w:val="2A4E8A"/></w:rPr></w:style>`).join('')}<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>`;
+            zip.file('[Content_Types].xml', contentTypes);
+            zip.folder('_rels').file('.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+            const word = zip.folder('word');
+            word.file('document.xml', documentXml).file('styles.xml', styles)
+                .file('settings.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:evenAndOddHeaders/><w:updateFields w:val="true"/><w:compat/></w:settings>')
+                .file('header-odd.xml', headerXml(data.authors || 'Tác giả', 'right'))
+                .file('header-even.xml', headerXml(data.title || data.title_en || 'TIÊU ĐỀ BÀI BÁO', 'left'))
+                .file('header-first.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p/></w:hdr>')
+                .file('footer-odd.xml', footerXml(data.date, false)).file('footer-even.xml', footerXml(data.date, true));
+            word.folder('_rels').file('document.xml.rels', relationships);
+            return zip;
+        }
+
+        async function appendFormattedContentToTemplate(zip, data) {
+            const path = 'word/document.xml';
+            const contentImages = await prepareContentImages(zip, data.contentHtml);
+            if (contentImages.relationships) {
+                const relsPath = 'word/_rels/document.xml.rels';
+                let rels = zip.file(relsPath).asText();
+                rels = rels.replace('</Relationships>', contentImages.relationships + '</Relationships>');
+                zip.file(relsPath, rels);
+                let types = zip.file('[Content_Types].xml').asText();
+                if (!/Extension="png"/i.test(types)) types = types.replace(/(<Types\b[^>]*>)/, '$1<Default Extension="png" ContentType="image/png"/>');
+                if (!/Extension="jpg"/i.test(types)) types = types.replace('</Types>', '<Default Extension="jpg" ContentType="image/jpeg"/></Types>');
+                zip.file('[Content_Types].xml', types);
+            }
+            let xml = zip.file(path).asText();
+            const sectIndex = xml.lastIndexOf('<w:sectPr');
+            const tail = sectIndex >= 0 ? xml.slice(Math.max(0, sectIndex - 1800), sectIndex) : '';
+            const pageBreak = /<w:br[^>]+w:type="page"/.test(tail) ? '' : '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+            const addition = pageBreak + quillHtmlToWordXml(data.contentHtml, contentImages.map);
+            if (sectIndex >= 0) xml = xml.slice(0, sectIndex) + addition + xml.slice(sectIndex);
+            else xml = xml.replace('</w:body>', addition + '</w:body>');
+            zip.file(path, xml);
+        }
+
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Xuất Word: template là tùy chọn; cả hai nhánh đều có nội dung chính.
+        document.getElementById('exportBtn').onclick = async () => {
             if (typeof PizZip === 'undefined') {
                 alert("Lỗi load thư viện PizZip. Kiểm tra kết nối mạng hoặc thử refresh trang.");
                 return;
             }
-
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                try {
-                    const zip = new PizZip(e.target.result);
-                    const doc = new docxtemplater(zip, {
-                        paragraphLoop: true,
-                        linebreaks: true,
-                    });
-
-                    // Lấy giá trị từ Flatpickr (định dạng "d F Y" → "15 March 2025")
-                    let publishStr = document.getElementById('publishDate').value.trim();
-
-                    // Nếu không có giá trị → dùng ngày hiện tại
-                    if (!publishStr) {
-                        const today = new Date();
-                        publishStr = today.toLocaleDateString('en-US', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                        }); // → "15 March 2025"
-                    }
-
-                    // Chuyển thành "15, March, 2025" bằng cách tách và nối lại
-                    const parts = publishStr.split(' '); // ["15", "March", "2025"]
-                    const formattedDate = `${parts[0]} ${parts[1]}, ${parts[2]}`; // "15, March, 2025"
-
+            const button = document.getElementById('exportBtn');
+            const originalLabel = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Đang tạo file Word...';
+            try {
+                const data = currentExportData();
+                const template = document.getElementById('templateFile').files?.[0];
+                let zip;
+                if (template) {
+                    zip = new PizZip(await readFileAsArrayBuffer(template));
+                    const doc = new docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
                     doc.render({
-                        title: document.getElementById('title_vi').value,
-                        title_en: document.getElementById('title_en').value,
-                        authors: document.getElementById('authors').value,
-                        contact: document.getElementById('contact').value,
-                        abstract: document.getElementById('abstract_vi').value,
-                        abstract_en: document.getElementById('abstract_en').value,
-                        keywords: document.getElementById('keywords_vi').value,
-                        keywords_en: document.getElementById('keywords_en').value,
-                        date: `JSLHU, Issue ${formattedDate}`,
+                        title: data.title, title_en: data.title_en, authors: data.authors, contact: data.contact,
+                        abstract: data.abstract, abstract_en: data.abstract_en, keywords: data.keywords,
+                        keywords_en: data.keywords_en, date: data.date, content: ''
                     });
-
-                    const blob = doc.getZip().generate({ type: "blob" });
-                    saveAs(blob, "Ban_thao_bai_bao.docx");
-                } catch (err) {
-                    console.error(err);
-                    alert("Lỗi xuất file: " + (err.message || "Không xác định. Kiểm tra template.docx có placeholder đúng không."));
+                    zip = doc.getZip();
+                    await appendFormattedContentToTemplate(zip, data);
+                } else {
+                    zip = await buildDefaultDocx(data);
                 }
-            };
-            reader.readAsArrayBuffer(fileInput.files[0]);
+                const blob = zip.generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', compression: 'DEFLATE' });
+                saveAs(blob, 'Ban_thao_bai_bao.docx');
+            } catch (err) {
+                console.error(err);
+                alert('Lỗi xuất file Word: ' + (err.message || 'Không xác định'));
+            } finally {
+                button.disabled = false;
+                button.textContent = originalLabel;
+            }
         };
+
+        async function waitForPdfAssets(container) {
+            const ownerDocument = container.ownerDocument || document;
+            if (ownerDocument.fonts?.ready) await ownerDocument.fonts.ready;
+            await Promise.all(Array.from(container.querySelectorAll('img')).map(image => {
+                if (image.complete && image.naturalWidth) return Promise.resolve();
+                return new Promise(resolve => {
+                    image.addEventListener('load', resolve, { once: true });
+                    image.addEventListener('error', resolve, { once: true });
+                });
+            }));
+        }
+
+        document.getElementById('exportPdfBtn').onclick = async () => {
+            const button = document.getElementById('exportPdfBtn');
+            const originalLabel = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang chuẩn bị bản in...';
+
+            try {
+                // In trực tiếp preview hiện tại để giữ text thật và toàn bộ trang nội dung.
+                paginateContent(quill.root.innerHTML);
+                await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                const contentPages = document.querySelectorAll('#content-pages > .preview');
+                if (!contentPages.length) throw new Error('Chưa tạo được trang nội dung chính');
+                await waitForPdfAssets(document.getElementById('preview-pages'));
+                await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+                button.innerHTML = `<i class="fas fa-print"></i> Mở bản in (${contentPages.length + 1} trang)...`;
+                window.print();
+            } catch (error) {
+                console.error(error);
+                alert('Lỗi xuất file PDF: ' + (error.message || 'Không xác định'));
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalLabel;
+            }
+        };
+
         // Date Picker đẹp: chọn ngày/tháng/năm (không cần plugin riêng)
         flatpickr("#publishDate", {
             dateFormat: "d F Y",              // Output: "15 March 2025" (dễ đọc, hợp tạp chí)
@@ -1071,33 +1986,6 @@ Hãy phân tích chi tiết và đưa ra gợi ý cải thiện.
             // Hiện tại preview chưa có chỗ dành sẵn → có thể thêm tạm vào dưới ISSN
             // Hoặc chỉ dùng cho export Word
         }
-        // Copy nội dung chính từ preview sang clipboard (dạng HTML)
-        // Nút Tô lẹ: highlight phần preview-content để dễ chọn + copy
-        document.getElementById("copyPreviewBtn").addEventListener("click", () => {
-            const preview = document.getElementById("preview-content");
-
-            if (!preview) {
-                alert("Không tìm thấy phần preview!");
-                return;
-            }
-
-            // Tô màu nền xanh nhạt (có thể thay màu khác)
-
-            // Tự động chọn toàn bộ nội dung để copy nhanh
-            const range = document.createRange();
-            range.selectNodeContents(preview);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-
-            // Hiển thị hướng dẫn ngắn
-            alert("Đã tô màu phần nội dung chính!\nNhấn Ctrl+C để copy.\nVào Word chọn 'Keep Source Formatting'.");
-
-            // Optional: sau 5 giây tự tắt highlight để không làm rối mắt
-            setTimeout(() => {
-                preview.style.backgroundColor = "";
-            }, 8000); // 8 giây
-        });
         // Xử lý nút Logout
         document.getElementById("logoutBtn").addEventListener("click", () => {
             if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {

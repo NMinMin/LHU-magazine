@@ -1,1 +1,6 @@
 /.vscode
+.docs/
+.codex/
+.agents/
+
+templatetoform.html
