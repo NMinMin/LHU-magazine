@@ -8,12 +8,12 @@
             window.location.href = "index.html";
         }
     </script>
-<!-- Flatpickr CSS + Theme đẹp (material_blue rất hợp với accent xanh #2563eb) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <!-- Flatpickr CSS + Theme đẹp (material_blue rất hợp với accent xanh #2563eb) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Kiểm Tra & Xuất Bản Thảo Bài Báo - JSLHU</title>
@@ -258,22 +258,48 @@
         }
 
         /* Markdown render trong AI feedback */
-        #aiFeedback h1, #aiFeedback h2, #aiFeedback h3 {
+        #aiFeedback h1,
+        #aiFeedback h2,
+        #aiFeedback h3 {
             color: var(--accent);
             margin: 1rem 0 0.5rem;
             font-weight: 700;
         }
-        #aiFeedback h1 { font-size: 1.2rem; }
-        #aiFeedback h2 { font-size: 1.1rem; }
-        #aiFeedback h3 { font-size: 1rem; }
-        #aiFeedback p { margin-bottom: 0.6rem; }
-        #aiFeedback ul, #aiFeedback ol {
+
+        #aiFeedback h1 {
+            font-size: 1.2rem;
+        }
+
+        #aiFeedback h2 {
+            font-size: 1.1rem;
+        }
+
+        #aiFeedback h3 {
+            font-size: 1rem;
+        }
+
+        #aiFeedback p {
+            margin-bottom: 0.6rem;
+        }
+
+        #aiFeedback ul,
+        #aiFeedback ol {
             margin: 0.4rem 0 0.8rem 1.4rem;
             padding: 0;
         }
-        #aiFeedback li { margin-bottom: 0.3rem; }
-        #aiFeedback strong { color: var(--accent-dark); font-weight: 700; }
-        [data-theme="dark"] #aiFeedback strong { color: var(--accent); }
+
+        #aiFeedback li {
+            margin-bottom: 0.3rem;
+        }
+
+        #aiFeedback strong {
+            color: var(--accent-dark);
+            font-weight: 700;
+        }
+
+        [data-theme="dark"] #aiFeedback strong {
+            color: var(--accent);
+        }
 
         .preview-wrapper {
             margin-top: 2rem;
@@ -406,63 +432,117 @@
             margin-top: 2rem;
             border-top: 1px solid var(--border);
         }
+
+        /* Footer bên trong preview giấy A4 */
+        .preview-page-footer {
+            margin-top: 40px;
+            border-top: 1.5px solid #333;
+            padding-top: 6px;
+            display: flex;
+            align-items: center;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 10pt;
+            color: #333;
+        }
+
+        .preview-page-footer .footer-date {
+            font-style: italic;
+            font-size: 9pt;
+            color: #555;
+        }
+
+        .preview-page-footer .footer-page {
+            background-color: #7f7f7f;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 10pt;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Trang lẻ (odd) - Số bên phải, ngày bên trái của số */
+        .preview-page-footer.odd {
+            justify-content: flex-end;
+        }
+
+        .preview-page-footer.odd .footer-date {
+            margin-right: 8px;
+        }
+
+        /* Trang chẵn (even) - Số bên trái, ngày bên phải của số */
+        .preview-page-footer.even {
+            justify-content: flex-start;
+        }
+
+        .preview-page-footer.even .footer-page {
+            order: 1;
+            margin-right: 8px;
+        }
+
+        .preview-page-footer.even .footer-date {
+            order: 2;
+        }
+
         /* Flatpickr override để đẹp, khớp theme LHU */
-.flatpickr-calendar {
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: var(--card-bg);
-    color: var(--text);
-}
+        .flatpickr-calendar {
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--card-bg);
+            color: var(--text);
+        }
 
-.flatpickr-day.selected,
-.flatpickr-day.startRange,
-.flatpickr-day.endRange,
-.flatpickr-day.today.selected {
-    background: var(--accent) !important;
-    border-color: var(--accent) !important;
-    color: white !important;
-}
+        .flatpickr-day.selected,
+        .flatpickr-day.startRange,
+        .flatpickr-day.endRange,
+        .flatpickr-day.today.selected {
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+            color: white !important;
+        }
 
-.flatpickr-day:hover,
-.flatpickr-day:focus {
-    background: var(--accent-glow) !important;
-    border-color: var(--accent) !important;
-}
+        .flatpickr-day:hover,
+        .flatpickr-day:focus {
+            background: var(--accent-glow) !important;
+            border-color: var(--accent) !important;
+        }
 
-.flatpickr-current-month .cur-month,
-.flatpickr-current-month input.cur-year {
-    color: var(--accent) !important;
-}
+        .flatpickr-current-month .cur-month,
+        .flatpickr-current-month input.cur-year {
+            color: var(--accent) !important;
+        }
 
-.flatpickr-weekdays {
-    background: var(--input-bg);
-}
+        .flatpickr-weekdays {
+            background: var(--input-bg);
+        }
 
-.flatpickr-day.today {
-    border-color: var(--accent);
-}
+        .flatpickr-day.today {
+            border-color: var(--accent);
+        }
 
-/* Dark mode */
-[data-theme="dark"] .flatpickr-calendar {
-    background: #1e293b;
-    color: #e2e8f0;
-}
+        /* Dark mode */
+        [data-theme="dark"] .flatpickr-calendar {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
 
-[data-theme="dark"] .flatpickr-day.inRange,
-[data-theme="dark"] .flatpickr-day.prevMonthDay.inRange,
-[data-theme="dark"] .flatpickr-day.nextMonthDay.inRange,
-[data-theme="dark"] .flatpickr-day.today.inRange {
-    background: rgba(37, 99, 235, 0.2) !important;
-}
+        [data-theme="dark"] .flatpickr-day.inRange,
+        [data-theme="dark"] .flatpickr-day.prevMonthDay.inRange,
+        [data-theme="dark"] .flatpickr-day.nextMonthDay.inRange,
+        [data-theme="dark"] .flatpickr-day.today.inRange {
+            background: rgba(37, 99, 235, 0.2) !important;
+        }
     </style>
     <!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-<!-- Plugin cho month/year only (rất quan trọng nếu chỉ muốn chọn tháng/năm) -->
-<script src="https://npmcdn.com/flatpickr@4.6.13/dist/plugins/monthSelect/index.js"></script>
-<!-- Hoặc dùng phiên bản mới nhất từ unpkg nếu cần: https://unpkg.com/flatpickr/dist/plugins/monthSelect/index.js -->
+    <!-- Plugin cho month/year only (rất quan trọng nếu chỉ muốn chọn tháng/năm) -->
+    <script src="https://npmcdn.com/flatpickr@4.6.13/dist/plugins/monthSelect/index.js"></script>
+    <!-- Hoặc dùng phiên bản mới nhất từ unpkg nếu cần: https://unpkg.com/flatpickr/dist/plugins/monthSelect/index.js -->
 </head>
 
 <body data-theme="light">
@@ -537,15 +617,16 @@
                     <label>Nội dung chính:</label>
                     <div id="editor" class="quill-editor" style="height: 340px;"></div>
                 </div>
-<div class="form-group">
-    <label>Ngày xuất bản (Issue & Ngày/Tháng/Năm):</label>
-    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-        
-        <input type="text" id="publishDate" placeholder="Chọn ngày/tháng/năm (ví dụ: 15 March 2025)" style="flex: 1; min-width: 220px; padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text);">
-    </div>
-    <small style="color: var(--text-muted); display: block; margin-top: 4px;">
-    </small>
-</div>
+                <div class="form-group">
+                    <label>Ngày xuất bản (Issue & Ngày/Tháng/Năm):</label>
+                    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+
+                        <input type="text" id="publishDate" placeholder="Chọn ngày/tháng/năm (ví dụ: 15 March 2025)"
+                            style="flex: 1; min-width: 220px; padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text);">
+                    </div>
+                    <small style="color: var(--text-muted); display: block; margin-top: 4px;">
+                    </small>
+                </div>
                 <div class="form-group">
                     <label>Template Word (.docx):</label>
                     <input type="file" id="templateFile" accept=".docx">
@@ -695,6 +776,12 @@
                             <!-- tăng height cho thoải mái -->
                         </div>
                     </div>
+
+                    <!-- Footer trang preview (đường kẻ + ngày xuất bản + số trang) -->
+                    <div class="preview-page-footer odd">
+                        <span class="footer-date" id="preview-footer-date">JSLHU, Issue 20, 2025</span>
+                        <span class="footer-page">1</span>
+                    </div>
                 </div> <!-- kết thúc .preview -->
             </div>
         </div>
@@ -713,29 +800,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <!-- Quill Image Resize Module -->
     <script src="https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js"></script>
-    
+
     <script>
         // Month/Year Picker đẹp (sử dụng plugin monthSelect)
-flatpickr("#publishDate", {
-    plugins: [
-        new monthSelectPlugin({
-            shorthand: true,          // Tháng ngắn: Jan, Feb,...
-            dateFormat: "F Y",        // Output: "March 2025"
-            altFormat: "F Y",         // Hiển thị trong input: March 2025
-            theme: "material_blue"    // Hoặc "light", "dark", "airbnb" – khớp accent xanh
-        })
-    ],
-    altInput: true,               // Input ẩn, hiển thị đẹp altInput
-    altFormat: "F Y",
-    dateFormat: "F Y",
-    defaultDate: "March 2025",    // Mặc định (hoặc new Date() cho tháng hiện tại)
-    static: true,                 // Optional: picker luôn hiển thị nếu muốn inline
-    onChange: function(selectedDates, dateStr, instance) {
-        // Optional: cập nhật preview hoặc log
-        console.log("Đã chọn:", dateStr);
-        updatePreview(); // Nếu bạn muốn preview thay đổi theo
-    }
-});
+        flatpickr("#publishDate", {
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true,          // Tháng ngắn: Jan, Feb,...
+                    dateFormat: "F Y",        // Output: "March 2025"
+                    altFormat: "F Y",         // Hiển thị trong input: March 2025
+                    theme: "material_blue"    // Hoặc "light", "dark", "airbnb" – khớp accent xanh
+                })
+            ],
+            altInput: true,               // Input ẩn, hiển thị đẹp altInput
+            altFormat: "F Y",
+            dateFormat: "F Y",
+            defaultDate: "March 2025",    // Mặc định (hoặc new Date() cho tháng hiện tại)
+            static: true,                 // Optional: picker luôn hiển thị nếu muốn inline
+            onChange: function (selectedDates, dateStr, instance) {
+                // Optional: cập nhật preview hoặc log
+                console.log("Đã chọn:", dateStr);
+                updatePreview(); // Nếu bạn muốn preview thay đổi theo
+            }
+        });
         // Theme toggle
         const themeBtn = document.getElementById('themeBtn');
         const body = document.body;
@@ -822,6 +909,15 @@ flatpickr("#publishDate", {
 
             // Nội dung chính
             document.getElementById('preview-content').innerHTML = content || "<p style='text-align:center; color:#999;'>Nội dung bài báo sẽ hiển thị ở đây (sử dụng heading trong editor để định dạng mục 2., 2.1...)</p>";
+
+            // Cập nhật ngày xuất bản ở footer preview
+            const publishDateEl = document.getElementById('publishDate');
+            let footerDateStr = "JSLHU, Issue 20, 2025";
+            if (publishDateEl && publishDateEl.value) {
+                footerDateStr = "JSLHU, Issue 20, " + publishDateEl.value;
+            }
+            const footerDateNode = document.getElementById('preview-footer-date');
+            if (footerDateNode) footerDateNode.textContent = footerDateStr;
         }
 
         // Real-time update
@@ -911,34 +1007,34 @@ Hãy phân tích chi tiết và đưa ra gợi ý cải thiện.
                         linebreaks: true,
                     });
 
-// Lấy giá trị từ Flatpickr (định dạng "d F Y" → "15 March 2025")
-let publishStr = document.getElementById('publishDate').value.trim();
+                    // Lấy giá trị từ Flatpickr (định dạng "d F Y" → "15 March 2025")
+                    let publishStr = document.getElementById('publishDate').value.trim();
 
-// Nếu không có giá trị → dùng ngày hiện tại
-if (!publishStr) {
-    const today = new Date();
-    publishStr = today.toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    }); // → "15 March 2025"
-}
+                    // Nếu không có giá trị → dùng ngày hiện tại
+                    if (!publishStr) {
+                        const today = new Date();
+                        publishStr = today.toLocaleDateString('en-US', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        }); // → "15 March 2025"
+                    }
 
-// Chuyển thành "15, March, 2025" bằng cách tách và nối lại
-const parts = publishStr.split(' '); // ["15", "March", "2025"]
-const formattedDate = `${parts[0]} ${parts[1]}, ${parts[2]}`; // "15, March, 2025"
+                    // Chuyển thành "15, March, 2025" bằng cách tách và nối lại
+                    const parts = publishStr.split(' '); // ["15", "March", "2025"]
+                    const formattedDate = `${parts[0]} ${parts[1]}, ${parts[2]}`; // "15, March, 2025"
 
-doc.render({
-    title: document.getElementById('title_vi').value,
-    title_en: document.getElementById('title_en').value,
-    authors: document.getElementById('authors').value,
-    contact: document.getElementById('contact').value,
-    abstract: document.getElementById('abstract_vi').value,
-    abstract_en: document.getElementById('abstract_en').value,
-    keywords: document.getElementById('keywords_vi').value,
-    keywords_en: document.getElementById('keywords_en').value,
-    date: `JSLHU, Issue ${formattedDate}`,
-});
+                    doc.render({
+                        title: document.getElementById('title_vi').value,
+                        title_en: document.getElementById('title_en').value,
+                        authors: document.getElementById('authors').value,
+                        contact: document.getElementById('contact').value,
+                        abstract: document.getElementById('abstract_vi').value,
+                        abstract_en: document.getElementById('abstract_en').value,
+                        keywords: document.getElementById('keywords_vi').value,
+                        keywords_en: document.getElementById('keywords_en').value,
+                        date: `JSLHU, Issue ${formattedDate}`,
+                    });
 
                     const blob = doc.getZip().generate({ type: "blob" });
                     saveAs(blob, "Ban_thao_bai_bao.docx");
@@ -949,19 +1045,19 @@ doc.render({
             };
             reader.readAsArrayBuffer(fileInput.files[0]);
         };
-// Date Picker đẹp: chọn ngày/tháng/năm (không cần plugin riêng)
-flatpickr("#publishDate", {
-    dateFormat: "d F Y",              // Output: "15 March 2025" (dễ đọc, hợp tạp chí)
-    altInput: true,                   // Tạo input ẩn + hiển thị đẹp
-    altFormat: "d F Y",               // Hiển thị trong ô input: 15 March 2025
-    defaultDate: new Date(),          // Mặc định hôm nay (có thể đổi thành "2025-03-15")
-    weekNumbers: true,                // Optional: hiển thị số tuần
-    allowInput: true,                 // Cho phép gõ tay nếu cần
-    onChange: function(selectedDates, dateStr, instance) {
-        // Optional: cập nhật preview ngay khi chọn
-        updatePreview();
-    }
-});
+        // Date Picker đẹp: chọn ngày/tháng/năm (không cần plugin riêng)
+        flatpickr("#publishDate", {
+            dateFormat: "d F Y",              // Output: "15 March 2025" (dễ đọc, hợp tạp chí)
+            altInput: true,                   // Tạo input ẩn + hiển thị đẹp
+            altFormat: "d F Y",               // Hiển thị trong ô input: 15 March 2025
+            defaultDate: new Date(),          // Mặc định hôm nay (có thể đổi thành "2025-03-15")
+            weekNumbers: true,                // Optional: hiển thị số tuần
+            allowInput: true,                 // Cho phép gõ tay nếu cần
+            onChange: function (selectedDates, dateStr, instance) {
+                // Optional: cập nhật preview ngay khi chọn
+                updatePreview();
+            }
+        });
         updatePreview(); // Khởi chạy lần đầu
         // Thêm hiển thị ngày vào preview nếu cần (tuỳ chọn)
         const publishDateInput = document.getElementById('publishDate')?.value || document.getElementById('publishMonth')?.value;
