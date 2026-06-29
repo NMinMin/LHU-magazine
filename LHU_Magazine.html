@@ -166,6 +166,7 @@
         @media (max-width: 1280px) {
             .main-content {
                 grid-template-columns: 1fr;
+                max-width: 1100px;
             }
 
             .container-top {
@@ -176,6 +177,116 @@
             .container-bottom {
                 grid-column: 1;
                 grid-row: 2;
+            }
+        }
+
+        @media (max-width: 900px) {
+            header {
+                padding: .8rem 1rem;
+                gap: 12px;
+            }
+
+            header h1 {
+                font-size: clamp(1.05rem, 4vw, 1.45rem);
+                line-height: 1.25;
+            }
+
+            .header-actions {
+                gap: .5rem !important;
+                flex: 0 0 auto;
+            }
+
+            #logoutBtn {
+                padding: .55rem .75rem !important;
+            }
+
+            .main-content {
+                margin: 1rem auto;
+                padding: 0 1rem;
+                gap: 1rem;
+            }
+
+            body .panel,
+            body .preview-wrapper {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 620px) {
+            header {
+                position: static;
+                align-items: flex-start;
+            }
+
+            #logoutBtn {
+                width: 42px;
+                height: 42px;
+                padding: 0 !important;
+                overflow: hidden;
+                white-space: nowrap;
+                font-size: 0;
+            }
+
+            #logoutBtn i {
+                margin: 0 !important;
+                font-size: 1rem;
+            }
+
+            .main-content {
+                margin: .75rem auto;
+                padding: 0 .65rem;
+            }
+
+            .container-top {
+                gap: .85rem;
+            }
+
+            body .panel,
+            body .preview-wrapper {
+                border-radius: 9px;
+                padding: .8rem;
+            }
+
+            .panel h2 {
+                font-size: 1.15rem;
+            }
+
+            input,
+            textarea,
+            select {
+                font-size: 16px;
+            }
+
+            .panel .editor-help {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .editor-help-actions {
+                width: 100%;
+            }
+
+            .editor-help-actions button {
+                flex: 1 1 140px;
+            }
+
+            .panel.left > button {
+                width: 100%;
+                margin: .35rem 0;
+            }
+
+            body #aiFeedback {
+                min-height: 180px;
+                padding: .85rem;
+            }
+
+            .ql-toolbar.ql-snow {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .ql-toolbar.ql-snow .ql-formats {
+                margin-right: 7px;
             }
         }
 
@@ -207,6 +318,30 @@
 
         .form-group {
             margin-bottom: 1.4rem;
+        }
+
+        .soft-required-warning {
+            color: #dc2626;
+            margin-left: 4px;
+            font-weight: 800;
+            cursor: help;
+        }
+
+        .soft-required-warning[hidden],
+        .field-warning-text[hidden] {
+            display: none;
+        }
+
+        .field-warning-text {
+            display: block;
+            margin-top: 5px;
+            color: #dc2626;
+            font-size: .78rem;
+            line-height: 1.35;
+        }
+
+        .form-group.has-soft-warning input {
+            border-color: rgba(220, 38, 38, .65);
         }
 
         label {
@@ -336,6 +471,51 @@
             padding: 1.5rem;
             box-shadow: var(--shadow);
             overflow-x: auto;
+        }
+
+        .preview-wrapper.compact-preview {
+            overflow-x: hidden;
+        }
+
+        .preview-wrapper.compact-preview .preview-pages,
+        .preview-wrapper.compact-preview .preview-pages.review-active {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .preview-wrapper.compact-preview .preview-sheet-row,
+        .preview-wrapper.compact-preview .preview-pages.review-active .preview-sheet-row {
+            display: block;
+            width: var(--responsive-preview-width, 210mm);
+            padding-top: var(--responsive-preview-height, 297mm);
+            margin: 0 auto 18px;
+        }
+
+        .preview-wrapper.compact-preview .preview-sheet-row .preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: scale(var(--responsive-preview-scale, 1));
+            transform-origin: top left;
+        }
+
+        .preview-wrapper.compact-preview .review-comment-rail {
+            position: relative;
+            width: 100%;
+            height: auto;
+            margin-top: 14px;
+            overflow: visible;
+        }
+
+        .preview-wrapper.compact-preview .review-comment-card {
+            position: relative;
+            top: auto !important;
+            left: auto;
+            margin-bottom: 10px;
+        }
+
+        .preview-wrapper.compact-preview .review-comment-card::before {
+            display: none;
         }
 
         .preview {
@@ -480,10 +660,24 @@
             background: #eff6ff;
         }
 
-        .review-option input {
-            width: auto;
+        .review-option input[type="radio"] {
+            width: 14px;
+            height: 14px;
             margin: 2px 0 0;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            box-shadow: none;
+            transition: none;
+            accent-color: #2563eb;
             flex: 0 0 auto;
+        }
+
+        .review-option input[type="radio"]:focus {
+            outline: 2px solid rgba(37, 99, 235, .35);
+            outline-offset: 2px;
+            box-shadow: none;
         }
 
         .review-skip-option {
@@ -1049,6 +1243,17 @@
                 margin: 0;
             }
 
+            .preview-wrapper.compact-preview .preview-sheet-row,
+            .preview-wrapper.compact-preview .preview-pages.review-active .preview-sheet-row {
+                width: 210mm;
+                padding-top: 0;
+            }
+
+            .preview-wrapper.compact-preview .preview-sheet-row .preview {
+                position: relative;
+                transform: none;
+            }
+
             html,
             body {
                 width: 210mm;
@@ -1167,7 +1372,7 @@
 
     <header>
         <h1>Journal of Science LHU - Soạn thảo & AI Review</h1>
-        <div style="display: flex; align-items: center; gap: 1.2rem;">
+        <div class="header-actions" style="display: flex; align-items: center; gap: 1.2rem;">
             <button class="theme-toggle" id="themeBtn" aria-label="Chuyển chế độ">
                 <i class="fas fa-moon"></i>
             </button>
@@ -1206,12 +1411,21 @@
                         placeholder="Ví dụ: Applying SPSS and AI to Monitor School Railing Safety...">
                 </div>
                 <div class="form-group">
-                    <label>Tác giả:</label>
-                    <input type="text" id="authors" placeholder="Ví dụ: Nguyễn Văn A, Trần Thị B">
+                    <label for="authors">Tác giả:<span class="soft-required-warning" id="authorsWarningStar"
+                            title="Trường này đang để trống; bạn vẫn có thể tiếp tục và bổ sung sau trong file Word.">*</span></label>
+                    <input type="text" id="authors" placeholder="Ví dụ: Nguyễn Văn A, Trần Thị B"
+                        aria-describedby="authorsWarningText">
+                    <small class="field-warning-text" id="authorsWarningText">Bạn đang để trống tác giả — vẫn có thể
+                        tiếp tục và bổ sung sau.</small>
                 </div>
                 <div class="form-group">
-                    <label>Tác giả liên hệ (email):</label>
-                    <input type="email" id="contact" placeholder="Ví dụ: nguyenvana@example.com">
+                    <label for="contact">Tác giả liên hệ (email):<span class="soft-required-warning"
+                            id="contactWarningStar"
+                            title="Trường này đang để trống; bạn vẫn có thể tiếp tục và bổ sung sau trong file Word.">*</span></label>
+                    <input type="email" id="contact" placeholder="Ví dụ: nguyenvana@example.com"
+                        aria-describedby="contactWarningText">
+                    <small class="field-warning-text" id="contactWarningText">Bạn đang để trống tác giả liên hệ — vẫn
+                        có thể tiếp tục và bổ sung sau.</small>
                 </div>
                 <div class="form-group">
                     <label>Tóm tắt (Tiếng Việt):</label>
@@ -1586,29 +1800,81 @@
             quill.formatLine(paragraphRange.index, paragraphRange.length || 1, formats, 'user');
             closeParagraphDialog();
         });
-        // Xử lý paste hình ảnh từ clipboard
+        const Delta = Quill.import('delta');
+        const preservePasteBtn = document.getElementById('preservePasteBtn');
+        let preservePasteFormatting = true;
+
+        preservePasteBtn.addEventListener('click', () => {
+            preservePasteFormatting = !preservePasteFormatting;
+            preservePasteBtn.classList.toggle('is-off', !preservePasteFormatting);
+            preservePasteBtn.setAttribute('aria-pressed', String(preservePasteFormatting));
+            preservePasteBtn.innerHTML = `<i class="fas fa-paste"></i> Dán giữ định dạng: ${preservePasteFormatting ? 'Bật' : 'Tắt'}`;
+        });
+
+        function escapeClipboardText(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function plainClipboardTextToHtml(text) {
+            return String(text || '').replace(/\r\n?/g, '\n').split('\n')
+                .map(line => `<p>${line ? escapeClipboardText(line).replace(/\t/g, '&emsp;&emsp;') : '<br>'}</p>`)
+                .join('');
+        }
+
+        function normalizeClipboardHtml(html) {
+            const documentFragment = new DOMParser().parseFromString(String(html || ''), 'text/html');
+            documentFragment.body.querySelectorAll('p').forEach(paragraph => {
+                const headingHint = `${paragraph.className || ''} ${paragraph.getAttribute('style') || ''}`;
+                const headingMatch = /(?:(?:mso)?heading\s*|mso-outline-level\s*:\s*)([1-3])/i.exec(headingHint);
+                const headingLevel = headingMatch?.[1] || (/msotitle/i.test(headingHint) ? '1' : '');
+                if (!headingLevel) return;
+                const heading = documentFragment.createElement(`h${headingLevel}`);
+                heading.innerHTML = paragraph.innerHTML;
+                paragraph.replaceWith(heading);
+            });
+            return documentFragment.body.innerHTML;
+        }
+
+        // Xử lý hình ảnh và văn bản từ clipboard.
         quill.root.addEventListener('paste', function (e) {
             const clipboardData = e.clipboardData || window.clipboardData;
-            const items = clipboardData.items;
+            const items = clipboardData?.items || [];
+            const imageItem = Array.from(items).find(item => item.type.indexOf('image') !== -1);
 
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                if (item.type.indexOf('image') !== -1) {
-                    e.preventDefault(); // Ngăn paste mặc định
-
-                    const file = item.getAsFile();
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function (event) {
-                            const range = quill.getSelection(true);
-                            quill.insertEmbed(range.index, 'image', event.target.result); // Chèn base64
-                            quill.setSelection(range.index + 1);
-                        };
-                        reader.readAsDataURL(file);
-                    }
+            if (imageItem) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                const file = imageItem.getAsFile();
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const range = quill.getSelection(true) || { index: quill.getLength() - 1, length: 0 };
+                        quill.insertEmbed(range.index, 'image', event.target.result, 'user');
+                        quill.setSelection(range.index + 1, 0, 'silent');
+                    };
+                    reader.readAsDataURL(file);
                 }
+                return;
             }
-        }, false);
+
+            if (!preservePasteFormatting) return;
+            const html = clipboardData?.getData('text/html') || '';
+            const text = clipboardData?.getData('text/plain') || '';
+            if (!html && !text) return;
+
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            const range = quill.getSelection(true) || { index: quill.getLength() - 1, length: 0 };
+            const clipboardHtml = html ? normalizeClipboardHtml(html) : plainClipboardTextToHtml(text);
+            const pastedDelta = quill.clipboard.convert(clipboardHtml);
+            const insertion = new Delta().retain(range.index).delete(range.length || 0).concat(pastedDelta);
+            quill.updateContents(insertion, 'user');
+            quill.setSelection(range.index + pastedDelta.length(), 0, 'silent');
+        }, true);
 
         // Để resize ảnh: thêm module imageResize (dùng CDN)
 
@@ -1782,6 +2048,14 @@
             return clone.innerHTML;
         }
 
+        function removeVietnameseDiacritics(value) {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .replace(/Đ/g, 'D');
+        }
+
         function updatePreview() {
             const title_vi = document.getElementById('title_vi').value.trim();
             const title_en = document.getElementById('title_en').value.trim();
@@ -1806,7 +2080,7 @@
             // Chung
             document.getElementById('preview-authors').textContent = authors || "Tác giả";
             document.getElementById('preview-contact').textContent = contact || "email@domain.com";
-            document.getElementById('preview-authors-en').textContent = authors || "Authors";
+            document.getElementById('preview-authors-en').textContent = removeVietnameseDiacritics(authors) || "Authors";
             document.getElementById('preview-contact-en').textContent = contact || "email@domain.com";
 
             // Nội dung chính luôn bắt đầu ở trang 2 và tự phân trang theo khổ A4.
@@ -1824,10 +2098,24 @@
             });
         }
 
+        function updateSoftFieldWarnings() {
+            ['authors', 'contact'].forEach(id => {
+                const input = document.getElementById(id);
+                const isMissing = !input.value.trim();
+                input.closest('.form-group')?.classList.toggle('has-soft-warning', isMissing);
+                document.getElementById(`${id}WarningStar`).hidden = !isMissing;
+                document.getElementById(`${id}WarningText`).hidden = !isMissing;
+            });
+        }
+
         // Real-time update
         ['title_vi', 'title_en', 'authors', 'contact', 'abstract_vi', 'abstract_en', 'keywords_vi', 'keywords_en'].forEach(id => {
-            document.getElementById(id).addEventListener('input', updatePreview);
+            document.getElementById(id).addEventListener('input', () => {
+                updatePreview();
+                if (id === 'authors' || id === 'contact') updateSoftFieldWarnings();
+            });
         });
+        updateSoftFieldWarnings();
         quill.on('text-change', updatePreview);
 
         const reviewFieldConfig = {
@@ -1838,6 +2126,14 @@
             keywords_vi: { inputId: 'keywords_vi', previewId: 'preview-keywords-vi', label: 'Từ khóa tiếng Việt' },
             keywords_en: { inputId: 'keywords_en', previewId: 'preview-keywords-en', label: 'Keywords tiếng Anh' },
             content: { label: 'Nội dung chính' }
+        };
+        const synchronizedReviewFields = {
+            title_vi: 'title_en',
+            title_en: 'title_vi',
+            abstract_vi: 'abstract_en',
+            abstract_en: 'abstract_vi',
+            keywords_vi: 'keywords_en',
+            keywords_en: 'keywords_vi'
         };
         let activeReview = null;
         let reviewInputSnapshot = null;
@@ -1964,15 +2260,18 @@
                     id: 'review-' + index,
                     field,
                     criterion: String(item.criterion || reviewFieldConfig[field]?.label || 'Gợi ý cải thiện').trim(),
-                    original: currentWholeFieldValue || suppliedOriginal,
+                    original: field !== 'content' && reviewFieldConfig[field]?.inputId
+                        ? currentWholeFieldValue
+                        : suppliedOriginal,
                     issue: String(item.issue || item.reason || '').trim(),
                     targetBlockId: String(item.block_id || item.blockId || item.target_block_id || '').trim(),
                     options,
                     selectedOption: null
                 };
             }).filter(item => {
-                if (!allowedFields.has(item.field) || !item.original || item.options.length < 2) return false;
-                if (item.field === 'content') return true;
+                if (!allowedFields.has(item.field)) return false;
+                if (item.field === 'content') return Boolean(item.original) && item.options.length >= 3;
+                if (item.options.length < 3) return false;
                 if (seenWholeFields.has(item.field)) return false;
                 seenWholeFields.add(item.field);
                 return true;
@@ -2117,6 +2416,45 @@
             });
         }
 
+        function updateResponsivePreviewLayout() {
+            const wrapper = document.querySelector('.preview-wrapper');
+            const samplePage = document.getElementById('cover-page');
+            if (!wrapper || !samplePage) return;
+
+            const wrapperStyle = getComputedStyle(wrapper);
+            const horizontalPadding = parseFloat(wrapperStyle.paddingLeft || 0) + parseFloat(wrapperStyle.paddingRight || 0);
+            const measuredWidth = wrapper.clientWidth - horizontalPadding;
+            if (measuredWidth <= 0) return;
+            const availableWidth = Math.max(180, measuredWidth);
+            const naturalWidth = samplePage.offsetWidth || 794;
+            const naturalHeight = samplePage.offsetHeight || 1123;
+            const scale = Math.min(1, availableWidth / naturalWidth);
+            const shouldCompact = availableWidth < naturalWidth + 330;
+            const wasCompact = wrapper.classList.contains('compact-preview');
+
+            wrapper.style.setProperty('--responsive-preview-scale', scale.toFixed(4));
+            wrapper.style.setProperty('--responsive-preview-width', `${Math.round(naturalWidth * scale)}px`);
+            wrapper.style.setProperty('--responsive-preview-height', `${Math.round(naturalHeight * scale)}px`);
+            wrapper.classList.toggle('compact-preview', shouldCompact);
+
+            requestAnimationFrame(() => {
+                if (wasCompact !== shouldCompact && activeReview) {
+                    renderReviewAnnotations();
+                    return;
+                }
+                document.querySelectorAll('.review-comment-rail').forEach(layoutReviewRail);
+            });
+        }
+
+        let previewResizeObserver = null;
+        if (typeof ResizeObserver === 'function') {
+            previewResizeObserver = new ResizeObserver(updateResponsivePreviewLayout);
+            previewResizeObserver.observe(document.querySelector('.preview-wrapper'));
+        } else {
+            window.addEventListener('resize', updateResponsivePreviewLayout);
+        }
+        updateResponsivePreviewLayout();
+
         function updateReviewSelectionStatus() {
             if (!activeReview) return;
             const selectedCount = activeReview.suggestions.filter(item => item.selectedOption !== null).length;
@@ -2155,7 +2493,22 @@
             const card = radio.closest('.review-comment-card');
             const suggestion = activeReview.suggestions.find(item => item.id === card.dataset.suggestionId);
             if (!suggestion) return;
-            suggestion.selectedOption = radio.value === '' ? null : Number(radio.value);
+            const selectedOption = radio.value === '' ? null : Number(radio.value);
+            suggestion.selectedOption = selectedOption;
+
+            const pairedField = synchronizedReviewFields[suggestion.field];
+            const pairedSuggestion = pairedField
+                ? activeReview.suggestions.find(item => item.field === pairedField)
+                : null;
+            if (pairedSuggestion && (selectedOption === null || pairedSuggestion.options[selectedOption])) {
+                pairedSuggestion.selectedOption = selectedOption;
+                const pairedCard = document.querySelector(`.review-comment-card[data-suggestion-id="${pairedSuggestion.id}"]`);
+                pairedCard?.querySelectorAll('input[type="radio"]').forEach(input => {
+                    input.checked = input.value === ''
+                        ? selectedOption === null
+                        : Number(input.value) === selectedOption;
+                });
+            }
             updateReviewSelectionStatus();
         });
 
@@ -2423,38 +2776,51 @@
             return parseReviewResult(await callLlamaAI(prompt));
         }
 
+        const ARTICLE_REVIEW_CRITERIA = `Bạn là chuyên gia biên tập tạp chí khoa học.
+
+Hãy kiểm tra bài báo theo tiêu chuẩn:
+1. Tiêu đề: Viết hoa chữ cái đầu, không trùng từ khóa.
+2. Tóm tắt: Khoảng 150 đến 250 từ, có vấn đề, mục tiêu, phương pháp, kết quả, ý nghĩa.
+3. Abstract EN: Dịch sát nghĩa, dùng thì hiện tại đơn cho kết quả.
+4. Từ khóa: Từ 4 đến 6 cụm, không trùng tiêu đề.
+5. Nội dung: Kiểm tra cấu trúc IMRAD và trích dẫn chuẩn.`;
+
         function contentChunkPrompt(chunk, chunkNumber, totalChunks) {
-            return `Bạn là phản biện tạp chí khoa học. Chỉ phân tích mục ${chunkNumber}/${totalChunks}: ${chunk.label}.
-Tiêu chí giữ nguyên: kiểm tra cấu trúc IMRAD, logic, độ rõ ràng, trùng lặp, văn phong học thuật và trích dẫn.
+            return `${ARTICLE_REVIEW_CRITERIA}
+
+Trong lần gọi này, chỉ phân tích phần nội dung ${chunkNumber}/${totalChunks}: ${chunk.label} theo tiêu chí số 5. Không tạo suggestion cho tiêu đề, tóm tắt hoặc từ khóa.
 
 Yêu cầu:
 - summary tối đa 100 từ.
 - section_analysis tối đa 3 mục ngắn.
 - suggestions tối đa 3 mục, chỉ field="content".
-- Mỗi suggestion phải có block_id đúng, original chép chính xác một đoạn liên tục trong block, và đúng 2 options.
+- Mỗi suggestion phải có block_id đúng, original chép chính xác một đoạn liên tục trong block, và đúng 3 options.
 - Mỗi replacement tối đa 180 từ, không bịa dữ liệu/trích dẫn và không lặp từ bất thường.
 - Chỉ trả một JSON hợp lệ, không Markdown, theo cấu trúc:
-{"summary":"...","section_analysis":[{"section":"...","assessment":"..."}],"suggestions":[{"criterion":"Nội dung","field":"content","block_id":"block-N","original":"...","issue":"...","options":[{"label":"Phương án 1","replacement":"..."},{"label":"Phương án 2","replacement":"..."}]}]}
+{"summary":"...","section_analysis":[{"section":"...","assessment":"..."}],"suggestions":[{"criterion":"Nội dung","field":"content","block_id":"block-N","original":"...","issue":"...","options":[{"label":"Phương án 1","replacement":"..."},{"label":"Phương án 2","replacement":"..."},{"label":"Phương án 3","replacement":"..."}]}]}
 
 <CONTENT_BLOCKS>${JSON.stringify(chunk.blocks)}</CONTENT_BLOCKS>`;
         }
 
         function fieldGroupPrompt(group, articleData, compactContext) {
             const groupRules = {
-                titles: `Chỉ review title_vi và title_en. Với mỗi trường không rỗng tạo đúng 1 suggestion, đúng 2 phương án tiêu đề hoàn chỉnh. Tiêu đề phải phản ánh trọng tâm bài, viết hoa chữ cái đầu và hạn chế trùng từ khóa.`,
-                abstracts: `Chỉ review abstract_vi và abstract_en. Với mỗi trường không rỗng tạo đúng 1 suggestion, đúng 2 phương án hoàn chỉnh 150-250 từ dựa trên ngữ cảnh rút gọn; phải có vấn đề, mục tiêu, phương pháp, kết quả, ý nghĩa và tuyệt đối không bịa dữ liệu. Abstract EN phải sát nghĩa nội dung Việt và dùng thì hiện tại đơn cho kết quả theo tiêu chí hiện tại.`,
-                keywords: `Chỉ review keywords_vi và keywords_en. Với mỗi trường không rỗng tạo đúng 1 suggestion, đúng 2 phương án; mỗi phương án gồm 4-6 cụm từ rút từ chủ đề, phương pháp, đối tượng và kết quả, hạn chế trùng tiêu đề.`
+                titles: `Chỉ review title_vi và title_en theo tiêu chí số 1. Luôn tạo đúng 1 suggestion cho từng trường, kể cả trường đang rỗng; mỗi suggestion có đúng 3 phương án tiêu đề hoàn chỉnh.`,
+                abstracts: `Chỉ review abstract_vi và abstract_en theo tiêu chí số 2 và số 3. Luôn tạo đúng 1 suggestion cho từng trường, kể cả trường đang rỗng; mỗi suggestion có đúng 3 phương án hoàn chỉnh và tuyệt đối không bịa dữ liệu.`,
+                keywords: `Chỉ review keywords_vi và keywords_en theo tiêu chí số 4. Luôn tạo đúng 1 suggestion cho từng trường, kể cả trường đang rỗng; mỗi suggestion có đúng 3 phương án.`
             };
             const fieldsByGroup = {
                 titles: { title_vi: articleData.title_vi, title_en: articleData.title_en },
                 abstracts: { abstract_vi: articleData.abstract_vi, abstract_en: articleData.abstract_en },
                 keywords: { keywords_vi: articleData.keywords_vi, keywords_en: articleData.keywords_en }
             };
-            return `Bạn là biên tập viên tạp chí khoa học. ${groupRules[group]}
+            return `${ARTICLE_REVIEW_CRITERIA}
+
+${groupRules[group]}
 Chỉ sử dụng dữ liệu trong ARTICLE_FIELDS và COMPACT_CONTENT_CONTEXT. Không tạo suggestion content. Nếu ngữ cảnh thiếu dữ kiện thì giữ nguyên mức độ chắc chắn, không suy diễn.
-Mỗi original phải là toàn bộ giá trị trường hiện tại. Mỗi option có label và replacement; không lặp từ/cụm từ bất thường.
+Mỗi original phải là toàn bộ giá trị trường hiện tại; nếu trường đang trống thì original phải là chuỗi rỗng và issue phải nói rõ trường còn thiếu. Mỗi option có label và replacement; không lặp từ/cụm từ bất thường.
+Ba options của trường tiếng Việt và ba options của trường tiếng Anh phải ghép thành đúng 3 cặp tương ứng theo cùng chỉ số. Phương án 1 Việt phải cùng nội dung với Phương án 1 Anh; tương tự cho Phương án 2 và 3. Dùng chính xác các label "Phương án 1", "Phương án 2", "Phương án 3" cho cả hai trường.
 Chỉ trả JSON hợp lệ, không Markdown:
-{"summary":"Nhận xét ngắn","section_analysis":[],"suggestions":[{"criterion":"...","field":"...","block_id":"","original":"...","issue":"...","options":[{"label":"Phương án 1","replacement":"..."},{"label":"Phương án 2","replacement":"..."}]}]}
+{"summary":"Nhận xét ngắn","section_analysis":[],"suggestions":[{"criterion":"...","field":"...","block_id":"","original":"...","issue":"...","options":[{"label":"Phương án 1","replacement":"..."},{"label":"Phương án 2","replacement":"..."},{"label":"Phương án 3","replacement":"..."}]}]}
 <ARTICLE_FIELDS>${JSON.stringify(fieldsByGroup[group])}</ARTICLE_FIELDS>
 <COMPACT_CONTENT_CONTEXT>${compactContext}</COMPACT_CONTENT_CONTEXT>`;
         }
@@ -2602,7 +2968,7 @@ Chỉ trả JSON hợp lệ, không Markdown:
                 { key: 'titles', label: 'Tiêu đề Việt/Anh', fields: ['title_vi', 'title_en'] },
                 { key: 'abstracts', label: 'Tóm tắt Việt/Anh', fields: ['abstract_vi', 'abstract_en'] },
                 { key: 'keywords', label: 'Từ khóa Việt/Anh', fields: ['keywords_vi', 'keywords_en'] }
-            ].filter(group => group.fields.some(field => String(articleData[field] || '').trim()));
+            ];
             const tasks = [
                 ...fieldGroups.map(group => ({
                     type: 'field',
@@ -2937,7 +3303,7 @@ Chỉ trả JSON hợp lệ, không Markdown:
                 wordParagraph(wordRun('Trường Đại học Lạc Hồng, Số 10 Huỳnh Văn Nghệ, phường Bửu Long, Biên Hòa, Đồng Nai, Vietnam', { italic: true, size: 18 }), { align: 'right', after: 30 }) +
                 wordParagraph(wordRun('*Tác giả liên hệ: ' + data.contact, { size: 18 }), { align: 'right', after: 120 }) + viInfo +
                 wordParagraph(wordRun(data.title_en || 'ARTICLE TITLE', { bold: true, color: '2A4E8A', size: 26 }), { align: 'center', before: 160, after: 80 }) +
-                wordParagraph(wordRun(data.authors || 'Authors', { size: 20 }), { align: 'right', after: 30 }) +
+                wordParagraph(wordRun(data.authors_en || 'Authors', { size: 20 }), { align: 'right', after: 30 }) +
                 wordParagraph(wordRun('Lac Hong University, Bien Hoa, Dong Nai Province, Vietnam', { italic: true, size: 18 }), { align: 'right', after: 30 }) +
                 wordParagraph(wordRun('*Corresponding Author: ' + data.contact, { size: 18 }), { align: 'right', after: 100 }) + enInfo;
         }
@@ -2945,7 +3311,9 @@ Chỉ trả JSON hợp lệ, không Markdown:
         function currentExportData() {
             return {
                 title: document.getElementById('title_vi').value.trim(), title_en: document.getElementById('title_en').value.trim(),
-                authors: document.getElementById('authors').value.trim(), contact: document.getElementById('contact').value.trim(),
+                authors: document.getElementById('authors').value.trim(),
+                authors_en: removeVietnameseDiacritics(document.getElementById('authors').value.trim()),
+                contact: document.getElementById('contact').value.trim(),
                 abstract: document.getElementById('abstract_vi').value.trim(), abstract_en: document.getElementById('abstract_en').value.trim(),
                 keywords: document.getElementById('keywords_vi').value.trim(), keywords_en: document.getElementById('keywords_en').value.trim(),
                 date: footerDateText(), publishDate: document.getElementById('publishDate').value.trim(),
