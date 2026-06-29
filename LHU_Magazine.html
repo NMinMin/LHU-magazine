@@ -499,7 +499,26 @@
             transform-origin: top left;
         }
 
-        .preview-wrapper.compact-preview .review-comment-rail {
+        .preview-wrapper.compact-preview:not(.stack-comments) .preview-pages.review-active .preview-sheet-row {
+            display: grid;
+            grid-template-columns: var(--responsive-preview-width, 210mm) 310px;
+            gap: 18px;
+            width: calc(var(--responsive-preview-width, 210mm) + 328px);
+            min-height: var(--responsive-preview-height, 297mm);
+            padding-top: 0;
+        }
+
+        .preview-wrapper.compact-preview:not(.stack-comments) .review-comment-rail {
+            grid-column: 2;
+            position: relative;
+            width: 310px;
+            height: var(--responsive-preview-height, 297mm);
+            margin-top: 0;
+            overflow-y: auto;
+            overflow-x: visible;
+        }
+
+        .preview-wrapper.compact-preview.stack-comments .review-comment-rail {
             position: relative;
             width: 100%;
             height: auto;
@@ -507,14 +526,14 @@
             overflow: visible;
         }
 
-        .preview-wrapper.compact-preview .review-comment-card {
+        .preview-wrapper.compact-preview.stack-comments .review-comment-card {
             position: relative;
             top: auto !important;
             left: auto;
             margin-bottom: 10px;
         }
 
-        .preview-wrapper.compact-preview .review-comment-card::before {
+        .preview-wrapper.compact-preview.stack-comments .review-comment-card::before {
             display: none;
         }
 
@@ -1245,8 +1264,11 @@
 
             .preview-wrapper.compact-preview .preview-sheet-row,
             .preview-wrapper.compact-preview .preview-pages.review-active .preview-sheet-row {
-                width: 210mm;
-                padding-top: 0;
+                display: block !important;
+                width: 210mm !important;
+                min-height: 0 !important;
+                padding-top: 0 !important;
+                grid-template-columns: none !important;
             }
 
             .preview-wrapper.compact-preview .preview-sheet-row .preview {
@@ -2419,7 +2441,8 @@
         function updateResponsivePreviewLayout() {
             const wrapper = document.querySelector('.preview-wrapper');
             const samplePage = document.getElementById('cover-page');
-            if (!wrapper || !samplePage) return;
+            const previewPages = document.getElementById('preview-pages');
+            if (!wrapper || !samplePage || !previewPages) return;
 
             const wrapperStyle = getComputedStyle(wrapper);
             const horizontalPadding = parseFloat(wrapperStyle.paddingLeft || 0) + parseFloat(wrapperStyle.paddingRight || 0);
@@ -2428,17 +2451,25 @@
             const availableWidth = Math.max(180, measuredWidth);
             const naturalWidth = samplePage.offsetWidth || 794;
             const naturalHeight = samplePage.offsetHeight || 1123;
-            const scale = Math.min(1, availableWidth / naturalWidth);
-            const shouldCompact = availableWidth < naturalWidth + 330;
+            const hasReviewComments = previewPages.classList.contains('review-active');
+            const shouldStackComments = hasReviewComments && availableWidth < 620;
+            const commentRailWidth = hasReviewComments && !shouldStackComments ? 328 : 0;
+            const pageWidthBudget = Math.max(180, availableWidth - commentRailWidth);
+            const scale = Math.min(1, pageWidthBudget / naturalWidth);
+            const shouldCompact = scale < 0.999;
             const wasCompact = wrapper.classList.contains('compact-preview');
+            const wasStacked = wrapper.classList.contains('stack-comments');
+            const previousScale = parseFloat(wrapper.style.getPropertyValue('--responsive-preview-scale')) || 1;
+            const scaleChanged = Math.abs(previousScale - scale) > 0.002;
 
             wrapper.style.setProperty('--responsive-preview-scale', scale.toFixed(4));
             wrapper.style.setProperty('--responsive-preview-width', `${Math.round(naturalWidth * scale)}px`);
             wrapper.style.setProperty('--responsive-preview-height', `${Math.round(naturalHeight * scale)}px`);
             wrapper.classList.toggle('compact-preview', shouldCompact);
+            wrapper.classList.toggle('stack-comments', shouldStackComments);
 
             requestAnimationFrame(() => {
-                if (wasCompact !== shouldCompact && activeReview) {
+                if (activeReview && (wasCompact !== shouldCompact || wasStacked !== shouldStackComments || scaleChanged)) {
                     renderReviewAnnotations();
                     return;
                 }
@@ -2464,6 +2495,7 @@
 
         function renderReviewAnnotations() {
             document.getElementById('preview-pages').classList.toggle('review-active', Boolean(activeReview?.suggestions.length));
+            updateResponsivePreviewLayout();
             document.querySelectorAll('.ai-review-target').forEach(node => node.classList.remove('ai-review-target'));
             document.querySelectorAll('.review-comment-rail').forEach(rail => rail.innerHTML = '');
             if (!activeReview) return;
