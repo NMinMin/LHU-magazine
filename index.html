@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Đăng nhập - Hệ thống bảo mật</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
   <style>
     :root {
       --bg: #0f0f1a;
@@ -200,9 +202,9 @@
 
     <form id="loginForm">
       <div class="form-group">
-        <label for="username">Tên đăng nhập</label>
-        <i class="fas fa-user input-icon"></i>
-        <input type="text" id="username" placeholder="Nhập tên đăng nhập" autocomplete="username" required autofocus>
+        <label for="email">Email</label>
+        <i class="fas fa-envelope input-icon"></i>
+        <input type="email" id="email" placeholder="Nhập email" autocomplete="email" required autofocus>
       </div>
 
       <div class="form-group">
@@ -224,7 +226,6 @@
   </div>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxAqSsRfPksh1AOCfVWbLNxhHN6hO-i5fh4sCeMKeGve9ihOo__BT0PMN0rnKNMiUpE/exec"; // ← Dán link Apps Script vào đây
     const MAX_LOGIN_ATTEMPTS = 5;
     const LOCKOUT_MINUTES = 5;
 
@@ -236,6 +237,13 @@
       document.getElementById("lockedMsg").style.display = "block";
       document.getElementById("loginForm").querySelectorAll("input, button").forEach(el => el.disabled = true);
     }
+
+    async function redirectAuthenticatedUser() {
+      if (!window.lhuSupabase) return;
+      const { data } = await window.lhuSupabase.auth.getUser();
+      if (data.user) window.location.replace("LHU_Magazine.html");
+    }
+    redirectAuthenticatedUser();
 
     const togglePassword = document.getElementById("togglePassword");
     const passwordInput = document.getElementById("password");
@@ -252,31 +260,32 @@
 
       if (lockoutTime > Date.now()) return;
 
-      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const errorEl = document.getElementById("errorMsg");
+      const submitButton = this.querySelector('button[type="submit"]');
+
+      if (!window.lhuSupabase) {
+        errorEl.textContent = "Chưa cấu hình Supabase publishable key trong script.js.";
+        errorEl.style.display = "block";
+        return;
+      }
 
       try {
-        const response = await fetch(WEB_APP_URL, {
-          method: "POST",
-          body: new URLSearchParams({
-            username: username,
-            password: password
-          })
-        });
+        submitButton.disabled = true;
+        submitButton.textContent = "Đang đăng nhập...";
+        errorEl.style.display = "none";
 
-        const result = await response.json();
+        const { data, error } = await window.lhuSupabase.auth.signInWithPassword({ email, password });
 
-        if (result.success) {
-          localStorage.setItem("lh_access_granted", "true");
-          localStorage.setItem("loginTime", Date.now());
+        if (!error && data.user && data.session) {
           localStorage.removeItem("loginAttempts");
           localStorage.removeItem("lockoutTime");
-          window.location.href = "LHU_Magazine.html";
+          window.location.replace("LHU_Magazine.html");
         } else {
           loginAttempts++;
           localStorage.setItem("loginAttempts", loginAttempts);
-          errorEl.textContent = `Sai thông tin (${loginAttempts}/${MAX_LOGIN_ATTEMPTS})`;
+          errorEl.textContent = `Email hoặc mật khẩu không đúng (${loginAttempts}/${MAX_LOGIN_ATTEMPTS})`;
           errorEl.style.display = "block";
 
           if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
@@ -291,6 +300,11 @@
       } catch (error) {
         errorEl.textContent = "Lỗi kết nối đến máy chủ!";
         errorEl.style.display = "block";
+      } finally {
+        if (lockoutTime <= Date.now() && loginAttempts < MAX_LOGIN_ATTEMPTS) {
+          submitButton.disabled = false;
+        }
+        submitButton.textContent = "Đăng Nhập";
       }
     });
   </script>

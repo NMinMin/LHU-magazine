@@ -3,5 +3,5 @@
 .codex/
 .agents/
 .env
-
+supabase/
 templatetoform.html
