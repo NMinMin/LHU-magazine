@@ -34,6 +34,15 @@
         }
     </script>
     <style>
+        /* Hide scrollbars for toolbar items */
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-none {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
@@ -57,7 +66,7 @@
         .a4-page {
             width: 210mm;
             height: 297mm;
-            padding: 16mm 18mm 12mm 22mm;
+            padding: 15mm 10mm 15mm 25mm;
             margin: 0 auto 18px;
             background: white;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
@@ -414,12 +423,12 @@
                 <i class="fa-solid fa-bars"></i>
             </button>
             <div
-                class="bg-blue-600 text-white p-2 rounded-lg flex items-center justify-center font-bold text-base shadow-md">
+                class="hidden sm:flex bg-blue-600 text-white p-2 rounded-lg items-center justify-center font-bold text-base shadow-md">
                 <i class="fa-solid fa-graduation-cap"></i>
             </div>
             <div>
                 <h1 class="text-lg font-bold text-blue-800 dark:text-blue-400 leading-tight">Journal of Science LHU</h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Hệ thống Soạn thảo, AI Review & Sắp
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium hidden sm:block">Hệ thống Soạn thảo, AI Review & Sắp
                     xếp số xuất bản</p>
             </div>
         </div>
@@ -435,7 +444,8 @@
             <button onclick="runAiReview()"
                 class="bg-gradient-to-r from-rose-500 to-indigo-600 hover:from-rose-600 hover:to-indigo-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 shadow-md transition-all animate-pulse">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <span>Chạy AI Review Toàn diện</span>
+                <span class="hidden sm:inline">Chạy AI Review Toàn diện</span>
+                <span class="inline sm:hidden">AI Review</span>
             </button>
 
             <button id="dark-mode-toggle"
@@ -454,15 +464,22 @@
     </header>
 
     <div class="flex flex-1 overflow-hidden h-full relative" id="main-app-container">
+        <!-- Sidebar Backdrop for Mobile Overlay -->
+        <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-20 hidden transition-opacity duration-300"></div>
 
         <!-- Leftmost sidebar: Issue and Articles Management (Hỗ trợ kéo thả & tính toán số trang) -->
         <aside id="sidebar-panel"
-            class="w-72 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex flex-col shrink-0 z-10 transition-all duration-300">
+            class="w-72 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex flex-col shrink-0 z-30 transition-all duration-300 max-lg:fixed max-lg:top-0 max-lg:bottom-0 max-lg:left-0 max-lg:h-full max-lg:shadow-2xl">
             <!-- Issue Picker & Actions -->
             <div class="p-4 border-b border-slate-200 dark:border-slate-700 space-y-3">
-                <label
-                    class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Số
-                    báo hiện hành</label>
+                <div class="flex justify-between items-center">
+                    <label
+                        class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Số
+                        báo hiện hành</label>
+                    <button onclick="toggleSidebar()" class="lg:hidden p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Đóng sidebar">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
                 <div class="flex space-x-2">
                     <select id="issue-selector"
                         class="flex-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 font-semibold">
@@ -512,23 +529,39 @@
             </div>
         </aside>
 
-        <main class="flex-1 flex overflow-hidden">
+        <main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+            <!-- Mobile Tab Switcher -->
+            <div class="flex lg:hidden bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 w-full shrink-0 z-20">
+                <button id="tab-editor" onclick="switchMobileTab('editor')" class="flex-1 py-3 text-center text-xs font-bold border-b-2 flex items-center justify-center space-x-1.5 transition-all cursor-pointer border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Soạn thảo</span>
+                </button>
+                <button id="tab-preview" onclick="switchMobileTab('preview')" class="flex-1 py-3 text-center text-xs font-bold border-b-2 flex items-center justify-center space-x-1.5 transition-all cursor-pointer border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Xem trước A4</span>
+                </button>
+                <button id="tab-ai" onclick="switchMobileTab('ai')" class="flex-1 py-3 text-center text-xs font-bold border-b-2 flex items-center justify-center space-x-1.5 transition-all cursor-pointer border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Review</span>
+                </button>
+            </div>
 
             <!-- COLUMN 1: A4 Realtime Live Preview (Scrollable) -->
-            <section class="flex-1 bg-slate-200 dark:bg-slate-950 p-4 overflow-y-auto flex flex-col items-center">
+            <section id="preview-section" class="flex-1 w-full bg-slate-200 dark:bg-slate-950 p-4 overflow-y-auto flex flex-col items-center max-lg:hidden">
                 <!-- Preview Toolbar -->
                 <div
                     class="preview-toolbar w-full max-w-[210mm] mb-3 flex justify-between items-center text-xs bg-white dark:bg-slate-800 py-2 px-3 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700 shrink-0">
-                    <div class="flex items-center space-x-2 text-slate-600 dark:text-slate-300 font-medium">
+                    <div class="hidden sm:flex items-center space-x-2 text-slate-600 dark:text-slate-300 font-medium shrink-0">
                         <span
                             class="inline-flex items-center justify-center w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span id="preview-mode-title" class="font-semibold">Bản in A4 (Live Preview)</span>
                     </div>
-                    <div class="flex items-center space-x-1">
+                    <div class="flex items-center space-x-1 overflow-x-auto flex-nowrap w-full sm:w-auto scrollbar-none pb-0.5 shrink-0">
                         <button id="btn-toggle-preview-mode" onclick="togglePreviewMode()"
-                            class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded text-[11px] font-bold flex items-center transition-colors"
+                            class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded text-[11px] font-bold flex items-center transition-colors whitespace-nowrap"
                             title="Chuyển giữa bài hiện tại và toàn bộ số báo">
-                            <i class="fa-solid fa-book-open mr-1"></i> Xem toàn bộ số báo
+                            <i class="fa-solid fa-book-open"></i>
+                            <span class="hidden md:inline ml-1">Xem toàn bộ số báo</span>
                         </button>
                         <select id="issue-header-language" onchange="setIssueHeaderLanguage(this.value)"
                             class="rounded border border-slate-200 bg-slate-50 px-1 py-1 text-[10px]"
@@ -544,17 +577,22 @@
                             <option value="en">Bài: EN</option>
                         </select>
                         <button onclick="printCurrentArticle()"
-                            class="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded text-[11px] font-semibold flex items-center transition-colors">
-                            <i class="fa-solid fa-print mr-1"></i> In bài
+                            class="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded text-[11px] font-semibold flex items-center transition-colors whitespace-nowrap">
+                            <i class="fa-solid fa-print"></i>
+                            <span class="hidden md:inline ml-1">In bài</span>
                         </button>
                         <button id="export-word-btn" onclick="exportCurrentArticleWord()"
-                            class="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[11px] font-semibold flex items-center"
-                            title="Xuất DOCX trực tiếp từ nội dung Quill"><i class="fa-solid fa-file-word mr-1"></i>
-                            Word</button>
+                            class="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[11px] font-semibold flex items-center whitespace-nowrap"
+                            title="Xuất DOCX trực tiếp từ nội dung Quill">
+                            <i class="fa-solid fa-file-word"></i>
+                            <span class="hidden md:inline ml-1">Word</span>
+                        </button>
                         <button id="export-pdf-btn" onclick="exportVectorPdf()"
-                            class="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-[11px] font-semibold flex items-center"
-                            title="Xuất PDF vector, không chụp ảnh"><i class="fa-solid fa-file-pdf mr-1"></i>
-                            PDF</button>
+                            class="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-[11px] font-semibold flex items-center whitespace-nowrap"
+                            title="Xuất PDF vector, không chụp ảnh">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span class="hidden md:inline ml-1">PDF</span>
+                        </button>
                         <button onclick="zoomPreview(1)"
                             class="p-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded text-xs"
                             title="Phóng to">
@@ -569,8 +607,9 @@
                 </div>
 
                 <!-- A4 Simulation Page container -->
-                <div id="a4-container" class="transition-transform duration-200 origin-top">
-                    <div class="a4-page font-serif text-black leading-relaxed text-justify">
+                <div id="a4-scale-wrapper" class="w-full flex justify-center items-start overflow-visible">
+                    <div id="a4-container" class="transition-transform duration-200 origin-top">
+                        <div class="a4-page font-serif text-black leading-relaxed text-justify">
 
                         <div class="cover-content">
 
@@ -736,11 +775,12 @@
                     </div>
                     <div id="content-pages"></div>
                 </div>
-            </section>
+            </div>
+        </section>
 
             <!-- COLUMN 2: AI REVIEW PANEL (Middle column as requested in image_c58edb.png) -->
-            <section
-                class="w-96 border-l border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 overflow-y-auto flex flex-col shrink-0">
+            <section id="ai-review-section"
+                class="w-full lg:w-96 border-l border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 overflow-y-auto flex flex-col flex-1 lg:flex-none lg:shrink-0 max-lg:hidden">
                 <div
                     class="p-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 sticky top-0 z-10 flex justify-between items-center shadow-xs">
                     <div>
@@ -775,7 +815,7 @@
             </section>
 
             <!-- COLUMN 3: Right panel: Input Editor Form -->
-            <section class="w-[440px] bg-white dark:bg-slate-800 overflow-y-auto flex flex-col shrink-0">
+            <section id="editor-section" class="w-full lg:w-[440px] bg-white dark:bg-slate-800 overflow-y-auto flex flex-col flex-1 lg:flex-none lg:shrink-0">
                 <div
                     class="p-3.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 sticky top-0 backdrop-blur flex justify-between items-center z-10">
                     <div>
@@ -961,25 +1001,24 @@
     <div id="rich-text-workspace" class="fixed inset-0 bg-slate-900 z-50 hidden flex-col transition-all duration-300">
         <!-- Workspace Header -->
         <header
-            class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-3 flex items-center justify-between shrink-0">
-            <div class="flex items-center space-x-3">
+            class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+            <div class="flex items-start space-x-3 min-w-0">
                 <div
-                    class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2 rounded-xl text-center flex items-center justify-center">
+                    class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2 rounded-xl text-center flex items-center justify-center shrink-0">
                     <i class="fa-solid fa-file-word text-sm"></i>
                 </div>
-                <div>
-                    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100" id="workspace-article-title">Phòng
-                        Soạn Thảo Chuyên Sâu - JSLHU</h3>
-                    <p class="text-[10px] text-slate-400">Không gian viết bài độc lập & Xem trước A4 song hành</p>
+                <div class="min-w-0">
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 leading-snug break-words" id="workspace-article-title">Phòng Soạn Thảo Chuyên Sâu - JSLHU</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Không gian viết bài độc lập & Xem trước A4 song hành</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2 shrink-0 justify-end sm:justify-start">
                 <button onclick="openTableDialog()"
-                    class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded text-[10.5px] font-bold flex items-center">
+                    class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded text-[10.5px] font-bold flex items-center whitespace-nowrap">
                     <i class="fa-solid fa-table mr-1 text-indigo-500"></i> Thêm bảng
                 </button>
                 <button onclick="closeRichTextWorkspace()"
-                    class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-md transition-all">
+                    class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-md transition-all whitespace-nowrap">
                     <i class="fa-solid fa-floppy-disk mr-1"></i> Lưu & Quay lại
                 </button>
             </div>
@@ -989,7 +1028,7 @@
         <div class="flex-1 flex overflow-hidden">
             <!-- Right Pane: Rich Text WYSIWYG Editor with Full Toolbar -->
             <div
-                class="order-2 w-1/2 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 flex flex-col h-full">
+                class="order-2 w-full lg:w-1/2 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 flex flex-col h-full">
                 <!-- Quill toolbar: cùng nền tảng với LHU_Magazine.html -->
                 <div id="quill-toolbar">
                     <span class="ql-formats">
@@ -1015,7 +1054,7 @@
             </div>
 
             <!-- Left Pane: Realtime A4 Page Preview -->
-            <div class="order-1 w-1/2 bg-slate-900 overflow-y-auto p-6 flex flex-col items-center">
+            <div class="order-1 hidden lg:flex lg:w-1/2 bg-slate-900 overflow-y-auto p-6 flex-col items-center">
                 <!-- Tiny label representing A4 preview link -->
                 <div
                     class="text-[10px] text-indigo-400 font-bold uppercase mb-2 bg-indigo-950/80 px-3 py-1 rounded-full border border-indigo-900/40">
@@ -1109,8 +1148,11 @@
                 <button onclick="closeExportModal()"
                     class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg text-xs font-semibold transition-colors">Đóng</button>
                 <button onclick="exportJSON()"
+                    class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold shadow-sm transition-all"><i
+                        class="fa-solid fa-file-code mr-1"></i>Tải JSON</button>
+                <button id="btn-export-issue-word" onclick="exportIssueWord()"
                     class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all"><i
-                        class="fa-solid fa-file-code mr-1"></i>Tải file cấu hình JSON</button>
+                        class="fa-solid fa-file-word mr-1"></i>Xuất file Word số báo</button>
             </div>
         </div>
     </div>
@@ -1132,7 +1174,8 @@
             currentArticleId: null,
             zoomLevel: 100,
             sidebarCollapsed: false,
-            previewMode: "single"
+            previewMode: "single",
+            mobileTab: "editor"
         };
 
         const LOCAL_STATE_KEY = 'lhu_journal_manager_state_v4';
@@ -1198,6 +1241,9 @@
 
             document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
 
+            // Sync mobile tab
+            switchMobileTab(appState.mobileTab || 'editor');
+
             document.getElementById('issue-selector').addEventListener('change', function (e) {
                 if (!e.target.value) return;
                 appState.currentIssueId = e.target.value;
@@ -1214,15 +1260,20 @@
 
         function toggleSidebar() {
             const panel = document.getElementById('sidebar-panel');
+            const backdrop = document.getElementById('sidebar-backdrop');
             appState.sidebarCollapsed = !appState.sidebarCollapsed;
             if (appState.sidebarCollapsed) {
                 panel.style.width = '0px';
                 panel.style.opacity = '0';
                 panel.style.pointerEvents = 'none';
+                if (backdrop) backdrop.classList.add('hidden');
             } else {
                 panel.style.width = '18rem';
                 panel.style.opacity = '1';
                 panel.style.pointerEvents = 'auto';
+                if (backdrop && window.innerWidth < 1024) {
+                    backdrop.classList.remove('hidden');
+                }
             }
             saveToLocalStorage();
         }
@@ -1481,6 +1532,9 @@
             loadArticleIntoEditor(id);
             renderArticlesList();
             saveToLocalStorage();
+            if (window.innerWidth < 1024 && !appState.sidebarCollapsed) {
+                toggleSidebar();
+            }
             if (appState.previewMode === 'full') {
                 const firstPage = document.getElementById(`page-art-${id}-pg-1`);
                 if (firstPage) firstPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1811,15 +1865,15 @@
 
             if (appState.previewMode !== 'full') {
                 title.innerHTML = '<i class="fa-solid fa-file-invoice mr-1 text-emerald-500"></i> Xem bài viết hiện tại';
-                button.innerHTML = '<i class="fa-solid fa-book-open mr-1"></i> Xem toàn bộ số báo';
-                button.className = 'px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded text-[11px] font-bold flex items-center transition-colors';
+                button.innerHTML = '<i class="fa-solid fa-book-open"></i><span class="hidden md:inline ml-1">Xem toàn bộ số báo</span>';
+                button.className = 'px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded text-[11px] font-bold flex items-center transition-colors whitespace-nowrap';
                 renderSingleArticlePreview(activeArticle);
                 return;
             }
 
             title.innerHTML = `<i class="fa-solid fa-book-open mr-1 text-indigo-500"></i> Đang xem toàn bộ số báo (${issue.articles.length} bài)`;
-            button.innerHTML = '<i class="fa-solid fa-file-invoice mr-1"></i> Xem bài viết đơn lẻ';
-            button.className = 'px-2.5 py-1 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded text-[11px] font-bold flex items-center transition-colors';
+            button.innerHTML = '<i class="fa-solid fa-file-invoice"></i><span class="hidden md:inline ml-1">Xem bài viết đơn lẻ</span>';
+            button.className = 'px-2.5 py-1 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded text-[11px] font-bold flex items-center transition-colors whitespace-nowrap';
 
             const compiledPages = [];
             issue.articles.forEach(item => {
@@ -1834,6 +1888,7 @@
             container.replaceChildren(...compiledPages);
             syncHeaderLanguageControls(activeArticle);
             saveToLocalStorage();
+            adjustPreviewScale();
         }
 
         /* RICH TEXT WYSIWYG LAUNCHER & FUNCTIONS */
@@ -2883,9 +2938,9 @@
         function sectionProperties(options = {}) {
             const refs = options.references || '';
             const columns = options.columns === 2 ? '<w:cols w:num="2" w:space="567"/>' : '<w:cols w:num="1"/>';
-            const topMargin = options.topMargin || 907;
+            const topMargin = options.topMargin || 851;
             const startPage = options.startPage ? `<w:pgNumType w:start="${Math.max(1, parseInt(options.startPage) || 1)}"/>` : '';
-            return `<w:sectPr>${refs}${options.titlePage ? '<w:titlePg/>' : ''}<w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="${topMargin}" w:right="1021" w:bottom="680" w:left="1247" w:header="400" w:footer="400" w:gutter="0"/>${startPage}${columns}${options.nextPage ? '<w:type w:val="nextPage"/>' : ''}</w:sectPr>`;
+            return `<w:sectPr>${refs}${options.titlePage ? '<w:titlePg/>' : ''}<w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="${topMargin}" w:right="567" w:bottom="851" w:left="1418" w:header="400" w:footer="400" w:gutter="0"/>${startPage}${columns}${options.nextPage ? '<w:type w:val="nextPage"/>' : ''}</w:sectPr>`;
         }
 
         function pageFieldRun() {
@@ -3068,7 +3123,7 @@
             const content = quillHtmlToWordXml(data.contentHtml, contentImages.map);
             const refs = '<w:headerReference w:type="default" r:id="rIdHeaderOdd"/><w:headerReference w:type="even" r:id="rIdHeaderEven"/><w:footerReference w:type="default" r:id="rIdFooterOdd"/><w:footerReference w:type="even" r:id="rIdFooterEven"/>';
             const coverRefs = '<w:headerReference w:type="first" r:id="rIdHeaderFirst"/><w:footerReference w:type="first" r:id="rIdFooterOdd"/><w:footerReference w:type="default" r:id="rIdFooterOdd"/>';
-            const coverSection = `<w:p><w:pPr>${sectionProperties({ columns: 1, nextPage: true, references: coverRefs, titlePage: true, topMargin: 1247, startPage: data.startPage || 1 })}</w:pPr></w:p>`;
+            const coverSection = `<w:p><w:pPr>${sectionProperties({ columns: 1, nextPage: true, references: coverRefs, titlePage: true, topMargin: 851, startPage: data.startPage || 1 })}</w:pPr></w:p>`;
             const finalSection = sectionProperties({ columns: 2, references: refs });
             const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${coverXml(data)}${coverSection}${content || wordParagraph(wordRun('Nội dung bài báo bắt đầu từ trang 2.', { italic: true, color: '777777' }), { align: 'center' })}${finalSection}</w:body></w:document>`;
             const relationships = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rIdSettings" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/><Relationship Id="rIdHeaderOdd" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header-odd.xml"/><Relationship Id="rIdHeaderEven" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header-even.xml"/><Relationship Id="rIdHeaderFirst" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header-first.xml"/><Relationship Id="rIdFooterOdd" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer-odd.xml"/><Relationship Id="rIdFooterEven" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer-even.xml"/>${logoLoaded ? '<Relationship Id="rIdLogo" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image.png"/>' : ''}${contentImages.relationships}</Relationships>`;
@@ -3092,7 +3147,7 @@
         }
 
 
-        async function exportCurrentArticleWord() {
+        async function exportCurrentArticleWordManual() {
             if (typeof PizZip === 'undefined' || typeof saveAs === 'undefined') {
                 showToast('Chưa tải được thư viện xuất Word.');
                 return;
@@ -3100,9 +3155,11 @@
             const art = activeArticle();
             if (!art) return showToast('Vui lòng chọn bài báo trước khi xuất.');
             const button = document.getElementById('export-word-btn');
-            const originalLabel = button.innerHTML;
-            button.disabled = true;
-            button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Word';
+            const originalLabel = button ? button.innerHTML : 'Word';
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Word';
+            }
             try {
                 const data = currentExportData();
                 const zip = await buildDefaultDocx(data);
@@ -3112,8 +3169,19 @@
                 console.error(error);
                 showToast('Lỗi xuất Word: ' + (error.message || 'Không xác định'));
             } finally {
-                button.disabled = false;
-                button.innerHTML = originalLabel;
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = originalLabel;
+                }
+            }
+        }
+
+        async function exportCurrentArticleWord() {
+            try {
+                await exportCurrentArticleWordFromTemplate();
+            } catch (err) {
+                console.warn('Template export failed, falling back to manual OOXML generation:', err);
+                await exportCurrentArticleWordManual();
             }
         }
 
@@ -3621,6 +3689,536 @@ Mỗi options phải có đúng 3 chuỗi hoàn chỉnh. Với sections, chỉ n
         function allowDrop(ev) {
             ev.preventDefault();
         }
+
+        function switchMobileTab(tabName) {
+            appState.mobileTab = tabName;
+            
+            const tabs = ['editor', 'preview', 'ai'];
+            tabs.forEach(t => {
+                const tabBtn = document.getElementById(`tab-${t}`);
+                if (tabBtn) {
+                    if (t === tabName) {
+                        tabBtn.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-400', 'dark:border-blue-400');
+                        tabBtn.classList.remove('border-transparent', 'text-slate-500', 'dark:text-slate-400', 'hover:text-slate-700', 'dark:hover:text-slate-300');
+                    } else {
+                        tabBtn.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-400', 'dark:border-blue-400');
+                        tabBtn.classList.add('border-transparent', 'text-slate-500', 'dark:text-slate-400', 'hover:text-slate-700', 'dark:hover:text-slate-300');
+                    }
+                }
+            });
+
+            const editorSec = document.getElementById('editor-section');
+            const previewSec = document.getElementById('preview-section');
+            const aiSec = document.getElementById('ai-review-section');
+
+            if (editorSec) editorSec.classList.toggle('max-lg:hidden', tabName !== 'editor');
+            if (previewSec) {
+                previewSec.classList.toggle('max-lg:hidden', tabName !== 'preview');
+                if (tabName === 'preview') {
+                    setTimeout(adjustPreviewScale, 50);
+                }
+            }
+            if (aiSec) aiSec.classList.toggle('max-lg:hidden', tabName !== 'ai');
+            
+            saveToLocalStorage();
+        }
+
+        function adjustPreviewScale() {
+            const container = document.getElementById('preview-section');
+            const a4 = document.getElementById('a4-container');
+            if (!container || !a4) return;
+            
+            const a4Width = 794;
+            const containerWidth = container.clientWidth - 32;
+            
+            if (window.innerWidth < 1024 && containerWidth < a4Width) {
+                const scale = Math.max(0.3, containerWidth / a4Width);
+                a4.style.transform = `scale(${scale})`;
+                a4.style.transformOrigin = 'top center';
+                
+                const wrapper = document.getElementById('a4-scale-wrapper');
+                if (wrapper) {
+                    wrapper.style.height = `${a4.scrollHeight * scale}px`;
+                }
+            } else {
+                a4.style.transform = `scale(${appState.zoomLevel / 100})`;
+                a4.style.transformOrigin = 'top center';
+                const wrapper = document.getElementById('a4-scale-wrapper');
+                if (wrapper) {
+                    wrapper.style.height = 'auto';
+                }
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            adjustPreviewScale();
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (backdrop) {
+                if (window.innerWidth >= 1024) {
+                    backdrop.classList.add('hidden');
+                    const panel = document.getElementById('sidebar-panel');
+                    if (panel) {
+                        if (appState.sidebarCollapsed) {
+                            panel.style.width = '0px';
+                            panel.style.opacity = '0';
+                            panel.style.pointerEvents = 'none';
+                        } else {
+                            panel.style.width = '18rem';
+                            panel.style.opacity = '1';
+                            panel.style.pointerEvents = 'auto';
+                        }
+                    }
+                } else if (!appState.sidebarCollapsed) {
+                    backdrop.classList.remove('hidden');
+                }
+            }
+        });
+
+        // HỖ TRỢ XUẤT TOÀN BỘ SỐ BÁO RA FILE WORD SONG HÀNH
+        function getArticleExportData(art) {
+            const contentHtml = art.bodyContent || '';
+            const contentHolder = document.createElement('div');
+            contentHolder.innerHTML = contentHtml;
+            const selectedTitle = effectiveHeaderLanguage(art) === 'en'
+                ? (art.titleEn || art.titleVn) : (art.titleVn || art.titleEn);
+            return {
+                title: art.titleVn || '', title_en: art.titleEn || '',
+                headerTitle: toTitleCase(selectedTitle || 'TIÊU ĐỀ BÀI BÁO'),
+                authors: art.authors || '', authors_en: removeVietnameseDiacritics(art.authors),
+                contact: art.email || '', abstract: art.abstractVn || '', abstract_en: art.abstractEn || '',
+                keywords: art.keywordsVn || '', keywords_en: art.keywordsEn || '',
+                date: footerDateText(art), publishDate: art.datePublished || '',
+                startPage: parseInt(art.startPage || 1),
+                contentHtml, contentText: contentHolder.textContent.trim()
+            };
+        }
+
+        async function prepareAllContentImages(zip, articles) {
+            const map = new Map();
+            const relationshipsByArticle = [];
+            let imageCounter = 0;
+            
+            for (let i = 0; i < articles.length; i++) {
+                const art = articles[i];
+                const html = art.bodyContent || '';
+                const source = document.createElement('div');
+                source.innerHTML = html;
+                const articleMap = new Map();
+                const rels = [];
+                const images = Array.from(source.querySelectorAll('img'));
+                
+                for (let index = 0; index < images.length; index++) {
+                    const src = images[index].getAttribute('src');
+                    if (!src) continue;
+                    
+                    if (articleMap.has(src)) continue;
+                    
+                    try {
+                        let extension = 'png';
+                        let data;
+                        let options = {};
+                        const match = src.match(/^data:image\/(png|jpe?g);base64,(.+)$/i);
+                        if (match) {
+                            extension = match[1].toLowerCase().replace('jpeg', 'jpg');
+                            data = match[2];
+                            options = { base64: true };
+                        } else {
+                            const response = await fetch(src);
+                            if (!response.ok) continue;
+                            const type = response.headers.get('content-type') || '';
+                            extension = type.includes('jpeg') ? 'jpg' : 'png';
+                            data = await response.arrayBuffer();
+                        }
+                        
+                        imageCounter++;
+                        const relationshipId = `rIdContentImage${imageCounter}`;
+                        const fileName = `content-${imageCounter}.${extension}`;
+                        
+                        zip.file(`word/media/${fileName}`, data, options);
+                        rels.push(`<Relationship Id="${relationshipId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${fileName}"/>`);
+                        
+                        articleMap.set(src, { relationshipId, width: 2700000, height: 1800000, id: imageCounter + 1 });
+                    } catch (error) {
+                        console.warn('Không thể nhúng ảnh:', error);
+                    }
+                }
+                relationshipsByArticle.push({ map: articleMap, relsXml: rels.join('') });
+            }
+            
+            return relationshipsByArticle;
+        }
+
+        function normalizeAndReplaceDocxXml(xml, data) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xml, 'application/xml');
+            
+            const placeholders = [
+                'title', 'title_en', 'authors_vi', 'authors_en', 'authors',
+                'contact', 'abstract', 'abstract_en', 'keywords', 'keywords_en', 'content'
+            ];
+            
+            // 1. Process paragraphs
+            const paragraphs = doc.getElementsByTagName('w:p');
+            for (let p of paragraphs) {
+                const tNodes = [];
+                const rNodes = p.getElementsByTagName('w:r');
+                for (let r of rNodes) {
+                    const ts = r.getElementsByTagName('w:t');
+                    for (let t of ts) {
+                        tNodes.push(t);
+                    }
+                }
+                
+                if (tNodes.length === 0) continue;
+                
+                let fullText = tNodes.map(node => node.textContent).join('');
+                
+                let hasPlaceholder = placeholders.some(ph => fullText.includes(`{${ph}}`));
+                if (!hasPlaceholder) continue;
+                
+                if (fullText.includes('{content}')) {
+                    p.setAttribute('replace-with-content', 'true');
+                    continue;
+                }
+                
+                placeholders.forEach(ph => {
+                    const key = `{${ph}}`;
+                    if (fullText.includes(key)) {
+                        let val = '';
+                        if (ph === 'title') val = data.title;
+                        else if (ph === 'title_en') val = data.title_en || data.title;
+                        else if (ph === 'authors_vi') val = data.authors;
+                        else if (ph === 'authors_en') val = data.authors_en;
+                        else if (ph === 'authors') val = data.authors;
+                        else if (ph === 'contact') val = data.contact;
+                        else if (ph === 'abstract') val = data.abstract;
+                        else if (ph === 'abstract_en') val = data.abstract_en;
+                        else if (ph === 'keywords') val = data.keywords;
+                        else if (ph === 'keywords_en') val = data.keywords_en;
+                        
+                        fullText = fullText.replaceAll(key, val);
+                    }
+                });
+                
+                tNodes[0].textContent = fullText;
+                for (let i = 1; i < tNodes.length; i++) {
+                    tNodes[i].textContent = '';
+                }
+            }
+            
+            // 2. Adjust page numbering (only for main document.xml)
+            const sectPrs = doc.getElementsByTagName('w:sectPr');
+            for (let i = 0; i < sectPrs.length; i++) {
+                const sectPr = sectPrs[i];
+                let pgNumType = sectPr.getElementsByTagName('w:pgNumType')[0];
+                if (i === 0) {
+                    if (!pgNumType) {
+                        pgNumType = doc.createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:pgNumType');
+                        sectPr.appendChild(pgNumType);
+                    }
+                    pgNumType.setAttribute('w:start', data.startPage || 1);
+                } else {
+                    if (pgNumType) {
+                        pgNumType.removeAttribute('w:start');
+                    }
+                }
+            }
+            
+            const serializer = new XMLSerializer();
+            let resultXml = serializer.serializeToString(doc);
+            
+            // 3. Inject body content
+            if (data.content !== undefined) {
+                resultXml = resultXml.replace(/<w:p[^>]*replace-with-content="true"[^>]*>.*?<\/w:p>/s, data.content);
+            }
+            
+            return resultXml;
+        }
+
+        async function exportCurrentArticleWordFromTemplate() {
+            if (typeof PizZip === 'undefined' || typeof saveAs === 'undefined') {
+                showToast('Chưa tải được thư viện xuất Word.');
+                return;
+            }
+            const art = activeArticle();
+            if (!art) return showToast('Vui lòng chọn bài báo trước khi xuất.');
+            const button = document.getElementById('export-word-btn');
+            const originalLabel = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Word';
+            
+            try {
+                // Fetch template
+                const response = await fetch('template.docx');
+                if (!response.ok) throw new Error('Không thể tải file template.docx');
+                const arrayBuffer = await response.arrayBuffer();
+                const zip = new PizZip(arrayBuffer);
+                
+                const data = currentExportData();
+                data.title_en = data.title_en || data.title;
+                data.authors_vi = data.authors;
+                data.authors_en = data.authors_en || removeVietnameseDiacritics(data.authors);
+                
+                const contentImages = await prepareContentImages(zip, data.contentHtml);
+                const bodyContentXml = quillHtmlToWordXml(data.contentHtml, contentImages.map);
+                data.content = bodyContentXml;
+                
+                // Process document.xml
+                let docXml = zip.file('word/document.xml').asText();
+                docXml = normalizeAndReplaceDocxXml(docXml, data);
+                zip.file('word/document.xml', docXml);
+                
+                // Process headers
+                const headerNames = ['word/header1.xml', 'word/header2.xml', 'word/header3.xml', 'word/header4.xml', 'word/header5.xml', 'word/header6.xml'];
+                headerNames.forEach(name => {
+                    const file = zip.file(name);
+                    if (file) {
+                        let hxml = file.asText();
+                        hxml = normalizeAndReplaceDocxXml(hxml, data);
+                        zip.file(name, hxml);
+                    }
+                });
+                
+                // Generate and download
+                const blob = zip.generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', compression: 'DEFLATE' });
+                saveAs(blob, safeExportName(art, 'docx'));
+                showToast("Đã tải tệp Word từ template thành công!");
+            } catch (error) {
+                console.error(error);
+                showToast('Lỗi xuất Word từ template: ' + (error.message || 'Không xác định'));
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalLabel;
+            }
+        }
+
+        async function exportIssueWord() {
+            if (typeof PizZip === 'undefined' || typeof saveAs === 'undefined') {
+                showToast('Chưa tải được thư viện xuất Word.');
+                return;
+            }
+            const currentIssue = appState.issues[appState.currentIssueId];
+            if (!currentIssue || currentIssue.articles.length === 0) {
+                showToast('Không có bài báo nào để xuất.');
+                return;
+            }
+            const button = document.getElementById('btn-export-issue-word');
+            const originalLabel = button ? button.innerHTML : 'Xuất file Word số báo';
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang xuất...';
+            }
+            
+            try {
+                // Fetch the base template to use for merging
+                const response = await fetch('template.docx');
+                if (!response.ok) throw new Error('Không thể tải file template.docx');
+                const templateBytes = await response.arrayBuffer();
+                
+                // We will create the merged zip based on the template
+                const mergedZip = new PizZip(templateBytes);
+                
+                // Extract relationships from template.docx
+                const templateRelsXml = mergedZip.file('word/_rels/document.xml.rels').asText();
+                const parser = new DOMParser();
+                const relsDoc = parser.parseFromString(templateRelsXml, 'application/xml');
+                const templateRels = Array.from(relsDoc.getElementsByTagName('Relationship')).map(r => ({
+                    id: r.getAttribute('Id'),
+                    type: r.getAttribute('Type'),
+                    target: r.getAttribute('Target')
+                }));
+                
+                const articles = currentIssue.articles;
+                
+                // Prepare all content images in a safe way
+                const relationshipsByArticle = await prepareAllContentImages(mergedZip, articles);
+                
+                const mergedDocumentParts = [];
+                const mergedRels = [];
+                const contentTypesOverrides = [];
+                
+                // Add shared relationships
+                templateRels.forEach(rel => {
+                    if (!rel.target.includes('header') && !rel.target.includes('footer') && !rel.target.includes('media/')) {
+                        mergedRels.push(`<Relationship Id="${rel.id}" Type="${rel.type}" Target="${rel.target}"/>`);
+                    }
+                });
+                
+                // Append content images relationships
+                relationshipsByArticle.forEach(item => {
+                    if (item.relsXml) {
+                        mergedRels.push(item.relsXml);
+                    }
+                });
+                
+                // Add core content types
+                contentTypesOverrides.push(`<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>`);
+                contentTypesOverrides.push(`<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>`);
+                contentTypesOverrides.push(`<Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>`);
+                
+                // For each article, process and merge
+                for (let i = 0; i < articles.length; i++) {
+                    const art = articles[i];
+                    const data = getArticleExportData(art);
+                    data.title_en = data.title_en || data.title;
+                    data.authors_vi = data.authors;
+                    data.authors_en = data.authors_en || removeVietnameseDiacritics(data.authors);
+                    
+                    // Create local relationship mapping for headers/footers/media of this article
+                    const localRelMap = new Map();
+                    templateRels.forEach(rel => {
+                        if (rel.target.includes('header') || rel.target.includes('footer') || rel.target.includes('media/')) {
+                            const uniqueId = `${rel.id}_art_${i}`;
+                            const newFilename = rel.target.replace(/^(.*)\.(xml|png|jpg)$/, `$1_art_${i}.$2`);
+                            localRelMap.set(rel.id, {
+                                uniqueId,
+                                newFilename,
+                                type: rel.type,
+                                originalFilename: rel.target
+                            });
+                        }
+                    });
+                    
+                    // Prepare body XML
+                    const bodyContentXml = quillHtmlToWordXml(data.contentHtml, relationshipsByArticle[i].map);
+                    data.content = bodyContentXml;
+                    
+                    // Read and process template's document.xml
+                    let artDocXml = mergedZip.file('word/document.xml').asText();
+                    artDocXml = normalizeAndReplaceDocxXml(artDocXml, data);
+                    
+                    // Replace relationship IDs with unique ones in this article's document XML
+                    localRelMap.forEach((info, oldId) => {
+                        const rIdRegex = new RegExp(`r:id="${oldId}"`, 'g');
+                        artDocXml = artDocXml.replace(rIdRegex, `r:id="${info.uniqueId}"`);
+                        
+                        const embedRegex = new RegExp(`r:embed="${oldId}"`, 'g');
+                        artDocXml = artDocXml.replace(embedRegex, `r:embed="${info.uniqueId}"`);
+                    });
+                    
+                    // Extract all child nodes of w:body of this article
+                    const artDoc = parser.parseFromString(artDocXml, 'application/xml');
+                    const artBody = artDoc.getElementsByTagName('w:body')[0];
+                    const bodyChildren = Array.from(artBody.childNodes);
+                    
+                    // The last child is the final section properties of this article
+                    const lastSectPrNode = artBody.getElementsByTagName('w:sectPr')[0];
+                    const serializer = new XMLSerializer();
+                    
+                    // Append all children EXCEPT the final sectPr to mergedDocumentParts
+                    bodyChildren.forEach(child => {
+                        if (child.nodeName !== 'w:sectPr') {
+                            mergedDocumentParts.push(serializer.serializeToString(child));
+                        }
+                    });
+                    
+                    // Convert lastSectPr to a paragraph section break if it's NOT the last article in the issue
+                    const lastSectPrXml = serializer.serializeToString(lastSectPrNode);
+                    if (i < articles.length - 1) {
+                        // Section break type must be nextPage so next article starts on new page
+                        let modifiedSectPrXml = lastSectPrXml;
+                        if (!modifiedSectPrXml.includes('<w:type')) {
+                            modifiedSectPrXml = modifiedSectPrXml.replace('</w:sectPr>', '<w:type w:val="nextPage"/></w:sectPr>');
+                        } else {
+                            modifiedSectPrXml = modifiedSectPrXml.replace(/<w:type[^>]*>/, '<w:type w:val="nextPage"/>');
+                        }
+                        mergedDocumentParts.push(`<w:p><w:pPr>${modifiedSectPrXml}</w:pPr></w:p>`);
+                    } else {
+                        // For the last article, save the final sectPr as a direct child of w:body at the very end
+                        data.lastSectPrXml = lastSectPrXml;
+                    }
+                    
+                    // Process, duplicate, and save header/footer files for this article
+                    for (let [oldId, info] of localRelMap) {
+                        if (info.originalFilename.includes('media/')) {
+                            // Copy media files
+                            const mediaData = mergedZip.file(`word/${info.originalFilename}`);
+                            if (mediaData) {
+                                mergedZip.file(`word/${info.newFilename}`, mediaData.asArrayBuffer());
+                            }
+                        } else {
+                            // Copy and process XML files (headers/footers)
+                            const fileData = mergedZip.file(`word/${info.originalFilename}`);
+                            if (fileData) {
+                                let fileXml = fileData.asText();
+                                fileXml = normalizeAndReplaceDocxXml(fileXml, data);
+                                
+                                // Replace relationships inside headers/footers (like rIdLogo)
+                                localRelMap.forEach((mInfo, mOldId) => {
+                                    const rIdRegex = new RegExp(`r:id="${mOldId}"`, 'g');
+                                    fileXml = fileXml.replace(rIdRegex, `r:id="${mInfo.uniqueId}"`);
+                                    const embedRegex = new RegExp(`r:embed="${mOldId}"`, 'g');
+                                    fileXml = fileXml.replace(embedRegex, `r:embed="${mInfo.uniqueId}"`);
+                                });
+                                
+                                mergedZip.file(`word/${info.newFilename}`, fileXml);
+                            }
+                        }
+                        
+                        // Register relationship
+                        mergedRels.push(`<Relationship Id="${info.uniqueId}" Type="${info.type}" Target="${info.newFilename}"/>`);
+                        
+                        // Register content type override if it's header/footer XML
+                        if (!info.originalFilename.includes('media/')) {
+                            const contentType = info.originalFilename.includes('header') 
+                                ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml'
+                                : 'application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml';
+                            contentTypesOverrides.push(`<Override PartName="/word/${info.newFilename}" ContentType="${contentType}"/>`);
+                        }
+                    }
+                    
+                    // Create first-page header relationship file if logo is used
+                    const headerFirstInfo = Array.from(localRelMap.values()).find(info => info.originalFilename.includes('header-first') || info.originalFilename.includes('header1'));
+                    if (headerFirstInfo) {
+                        const firstHeaderRelsName = `word/_rels/${headerFirstInfo.newFilename.split('/').pop()}.rels`;
+                        const logoMediaInfo = Array.from(localRelMap.values()).find(info => info.originalFilename.includes('media/image'));
+                        if (logoMediaInfo) {
+                            mergedZip.file(firstHeaderRelsName, `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="${logoMediaInfo.uniqueId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="${logoMediaInfo.newFilename.replace('word/', '')}"/></Relationships>`);
+                        }
+                    }
+                }
+                
+                // Write final word/document.xml
+                const lastArtData = getArticleExportData(articles[articles.length - 1]);
+                const finalBodyXml = `<w:body>${mergedDocumentParts.join('')}${lastArtData.lastSectPrXml || ''}</w:body>`;
+                const finalDocXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">${finalBodyXml}</w:document>`;
+                mergedZip.file('word/document.xml', finalDocXml);
+                
+                // Write final word/_rels/document.xml.rels
+                const finalRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${mergedRels.join('')}</Relationships>`;
+                mergedZip.file('word/_rels/document.xml.rels', finalRelsXml);
+                
+                // Write final [Content_Types].xml
+                let imageCounter = 0;
+                relationshipsByArticle.forEach(item => { imageCounter += item.map.size; });
+                const hasImages = imageCounter > 0;
+                const finalContentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>${hasImages ? '<Default Extension="png" ContentType="image/png"/><Default Extension="jpg" ContentType="image/jpeg"/>' : ''}${contentTypesOverrides.join('')}</Types>`;
+                mergedZip.file('[Content_Types].xml', finalContentTypesXml);
+                
+                // Clean up template original unused duplicated header/footer files from the zip
+                templateRels.forEach(rel => {
+                    if (rel.target.includes('header') || rel.target.includes('footer')) {
+                        mergedZip.remove(`word/${rel.target}`);
+                    }
+                });
+                
+                // Generate and download
+                const blob = mergedZip.generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', compression: 'DEFLATE' });
+                const baseName = currentIssue.title.replace(/[\\/:*?"<>|]+/g, '_');
+                saveAs(blob, `${baseName}_Full_Issue.docx`);
+                showToast("Đã tải tệp Word toàn bộ số báo từ template thành công!");
+                closeExportModal();
+            } catch (error) {
+                console.error(error);
+                showToast('Lỗi xuất Word toàn bộ số báo từ template: ' + (error.message || 'Không xác định'));
+            } finally {
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = originalLabel;
+                }
+            }
+        }
+
     </script>
 </body>
 
