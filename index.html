@@ -7,7 +7,7 @@
   <title>Đăng nhập - Hệ thống bảo mật</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js"></script>
+  <script src="js/modules/supabase.js"></script>
   <style>
     :root {
       --bg: #0f0f1a;
@@ -266,7 +266,7 @@
       const submitButton = this.querySelector('button[type="submit"]');
 
       if (!window.lhuSupabase) {
-        errorEl.textContent = "Chưa cấu hình Supabase publishable key trong script.js.";
+        errorEl.textContent = "Chưa cấu hình Supabase publishable key trong supabase.js.";
         errorEl.style.display = "block";
         return;
       }

@@ -27,7 +27,7 @@
 
     window.lhuRequireAuth = async () => {
         if (!window.lhuSupabase) {
-            throw new Error("Chưa cấu hình Supabase publishable key trong script.js.");
+            throw new Error("Chưa cấu hình Supabase publishable key trong supabase.js.");
         }
 
         const { data, error } = await window.lhuSupabase.auth.getUser();
