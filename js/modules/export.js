@@ -6,6 +6,7 @@ import {
 } from './utils.js';
 import { activeArticle, effectiveHeaderLanguage, footerDateText, preparePreviewForOutput, formatKeywords } from './ui.js';
 import { getQuillInstance, getQuillArticleId } from './editor.js';
+import { submitCurrentArticle } from './cloud.js';
 
 export function safeExportName(art, extension) {
     const base = (art.titleVn || art.titleEn || 'Ban_thao_bai_bao').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 90);
@@ -28,7 +29,7 @@ export function currentExportData() {
         ? (art.titleEn || art.titleVn) : (art.titleVn || art.titleEn);
     return {
         title: art.titleVn || '', title_en: art.titleEn || '',
-        headerTitle: toTitleCase(selectedTitle || 'TIÊU ĐỀ BÀI BÁO'),
+        headerTitle: art.headerTitle || toTitleCase(selectedTitle || 'TIÊU ĐỀ BÀI BÁO'),
         authors: art.authors || '', authors_en: removeVietnameseDiacritics(art.authors),
         contact: art.email || '', abstract: art.abstractVn || '', abstract_en: art.abstractEn || '',
         keywords: art.keywordsVn || '', keywords_en: art.keywordsEn || '',
@@ -234,6 +235,7 @@ export async function exportCurrentArticleWordManual() {
         const zip = await buildDefaultDocx(data);
         const blob = zip.generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', compression: 'DEFLATE' });
         window.saveAs(blob, safeExportName(art, 'docx'));
+        await submitCurrentArticle('docx', blob);
     } catch (error) {
         console.error(error);
         showToast('Lỗi xuất Word: ' + (error.message || 'Không xác định'));
@@ -288,6 +290,7 @@ export async function exportCurrentArticleWordFromTemplate() {
 
         const blob = zip.generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', compression: 'DEFLATE' });
         window.saveAs(blob, safeExportName(art, 'docx'));
+        await submitCurrentArticle('docx', blob);
         showToast("Đã tải tệp Word từ template thành công!");
     } catch (error) {
         console.error(error);
@@ -402,6 +405,7 @@ export async function exportVectorPdf() {
         await preparePreviewForOutput();
         document.body.classList.add('pdf-output-mode');
         window.print();
+        await submitCurrentArticle('pdf', null);
     } catch (error) {
         console.error(error);
         showToast('Lỗi chuẩn bị PDF: ' + (error.message || 'Không xác định'));
@@ -477,7 +481,7 @@ export function getArticleExportData(art) {
         ? (art.titleEn || art.titleVn) : (art.titleVn || art.titleEn);
     return {
         title: art.titleVn || '', title_en: art.titleEn || '',
-        headerTitle: toTitleCase(selectedTitle || 'TIÊU ĐỀ BÀI BÁO'),
+        headerTitle: art.headerTitle || toTitleCase(selectedTitle || 'TIÊU ĐỀ BÀI BÁO'),
         authors: art.authors || '', authors_en: removeVietnameseDiacritics(art.authors),
         contact: art.email || '', abstract: art.abstractVn || '', abstract_en: art.abstractEn || '',
         keywords: art.keywordsVn || '', keywords_en: art.keywordsEn || '',

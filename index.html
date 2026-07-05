@@ -175,6 +175,10 @@
       text-align: center;
       margin-top: 1rem;
       display: none;
+      background: rgba(255, 107, 107, 0.1);
+      padding: 0.8rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 107, 107, 0.2);
     }
 
     .locked {
@@ -191,15 +195,47 @@
       color: #7070a0;
       font-size: 0.85rem;
     }
+
+    .toggle-auth {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: #a0a0cc;
+    }
+
+    .toggle-auth a {
+      color: var(--accent-hover);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+      cursor: pointer;
+    }
+
+    .toggle-auth a:hover {
+      color: white;
+    }
+
+    .success-msg {
+      color: #2ecc71;
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 1.6rem;
+      display: none;
+      background: rgba(46, 204, 113, 0.1);
+      padding: 0.8rem;
+      border-radius: 12px;
+      border: 1px solid rgba(46, 204, 113, 0.2);
+    }
   </style>
 </head>
 
 <body>
 
   <div class="login-container">
-    <h1>Đăng Nhập</h1>
-    <p class="subtitle">Truy cập hệ thống LHU Magazine</p>
+    <h1 id="authTitle">Đăng Nhập</h1>
+    <p class="subtitle" id="authSubtitle">Truy cập hệ thống LHU Magazine</p>
 
+    <!-- FORM ĐĂNG NHẬP -->
     <form id="loginForm">
       <div class="form-group">
         <label for="email">Email</label>
@@ -218,6 +254,49 @@
       <div class="locked" id="lockedMsg">Tài khoản bị khóa tạm thời. Thử lại sau 5 phút.</div>
 
       <button type="submit" class="btn">Đăng Nhập</button>
+
+      <div class="toggle-auth">
+        Chưa có tài khoản? <a id="linkToRegister">Đăng ký ngay</a>
+      </div>
+    </form>
+
+    <!-- FORM ĐĂNG KÝ -->
+    <form id="registerForm" style="display: none;">
+      <div class="form-group">
+        <label for="regName">Họ và tên</label>
+        <i class="fas fa-user input-icon"></i>
+        <input type="text" id="regName" placeholder="Nhập họ và tên" required>
+      </div>
+
+      <div class="form-group">
+        <label for="regEmail">Email</label>
+        <i class="fas fa-envelope input-icon"></i>
+        <input type="email" id="regEmail" placeholder="Nhập email" autocomplete="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="regPassword">Mật khẩu</label>
+        <i class="fas fa-lock input-icon"></i>
+        <input type="password" id="regPassword" placeholder="Nhập mật khẩu" autocomplete="new-password" required>
+        <i class="fas fa-eye-slash password-toggle" id="toggleRegPassword"></i>
+      </div>
+
+      <div class="form-group">
+        <label for="regConfirmPassword">Xác nhận mật khẩu</label>
+        <i class="fas fa-check-double input-icon"></i>
+        <input type="password" id="regConfirmPassword" placeholder="Nhập lại mật khẩu" autocomplete="new-password"
+          required>
+        <i class="fas fa-eye-slash password-toggle" id="toggleRegConfirmPassword"></i>
+      </div>
+
+      <div class="error" id="regErrorMsg"></div>
+      <div class="success-msg" id="regSuccessMsg"></div>
+
+      <button type="submit" class="btn">Đăng Ký</button>
+
+      <div class="toggle-auth">
+        Đã có tài khoản? <a id="linkToLogin">Đăng nhập</a>
+      </div>
     </form>
 
     <div class="footer">
@@ -245,6 +324,39 @@
     }
     redirectAuthenticatedUser();
 
+    // Toggle navigation between forms
+    const authTitle = document.getElementById("authTitle");
+    const authSubtitle = document.getElementById("authSubtitle");
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const linkToRegister = document.getElementById("linkToRegister");
+    const linkToLogin = document.getElementById("linkToLogin");
+
+    linkToRegister.addEventListener("click", () => {
+      authTitle.textContent = "Đăng Ký";
+      authSubtitle.textContent = "Tạo tài khoản LHU Magazine mới";
+      loginForm.style.display = "none";
+      registerForm.style.display = "block";
+
+      // Reset errors/success messages
+      document.getElementById("errorMsg").style.display = "none";
+      document.getElementById("regErrorMsg").style.display = "none";
+      document.getElementById("regSuccessMsg").style.display = "none";
+    });
+
+    linkToLogin.addEventListener("click", () => {
+      authTitle.textContent = "Đăng Nhập";
+      authSubtitle.textContent = "Truy cập hệ thống LHU Magazine";
+      loginForm.style.display = "block";
+      registerForm.style.display = "none";
+
+      // Reset errors/success messages
+      document.getElementById("errorMsg").style.display = "none";
+      document.getElementById("regErrorMsg").style.display = "none";
+      document.getElementById("regSuccessMsg").style.display = "none";
+    });
+
+    // Login Form functionality
     const togglePassword = document.getElementById("togglePassword");
     const passwordInput = document.getElementById("password");
 
@@ -305,6 +417,100 @@
           submitButton.disabled = false;
         }
         submitButton.textContent = "Đăng Nhập";
+      }
+    });
+
+    // Register Form functionality
+    const toggleRegPassword = document.getElementById("toggleRegPassword");
+    const regPasswordInput = document.getElementById("regPassword");
+    toggleRegPassword.addEventListener("click", () => {
+      const type = regPasswordInput.type === "password" ? "text" : "password";
+      regPasswordInput.type = type;
+      toggleRegPassword.classList.toggle("fa-eye");
+      toggleRegPassword.classList.toggle("fa-eye-slash");
+    });
+
+    const toggleRegConfirmPassword = document.getElementById("toggleRegConfirmPassword");
+    const regConfirmPasswordInput = document.getElementById("regConfirmPassword");
+    toggleRegConfirmPassword.addEventListener("click", () => {
+      const type = regConfirmPasswordInput.type === "password" ? "text" : "password";
+      regConfirmPasswordInput.type = type;
+      toggleRegConfirmPassword.classList.toggle("fa-eye");
+      toggleRegConfirmPassword.classList.toggle("fa-eye-slash");
+    });
+
+    document.getElementById("registerForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("regName").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPassword").value;
+      const confirmPassword = document.getElementById("regConfirmPassword").value;
+      const errorEl = document.getElementById("regErrorMsg");
+      const successEl = document.getElementById("regSuccessMsg");
+      const submitButton = this.querySelector('button[type="submit"]');
+
+      if (!window.lhuSupabase) {
+        errorEl.textContent = "Chưa cấu hình Supabase publishable key trong supabase.js.";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        errorEl.textContent = "Xác nhận mật khẩu không trùng khớp!";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      if (password.length < 6) {
+        errorEl.textContent = "Mật khẩu phải có ít nhất 6 ký tự!";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      try {
+        submitButton.disabled = true;
+        submitButton.textContent = "Đang đăng ký...";
+        errorEl.style.display = "none";
+        successEl.style.display = "none";
+
+        const { data, error } = await window.lhuSupabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name
+            }
+          }
+        });
+
+        if (error) {
+          errorEl.textContent = error.message;
+          errorEl.style.display = "block";
+        } else {
+          if (data.session) {
+            successEl.textContent = "Đăng ký thành công! Đang chuyển hướng...";
+            successEl.style.display = "block";
+            setTimeout(() => {
+              window.location.replace("LHU_Magazine.html");
+            }, 1500);
+          } else {
+            successEl.textContent = "Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.";
+            successEl.style.display = "block";
+
+            // Clear inputs
+            document.getElementById("regName").value = "";
+            document.getElementById("regEmail").value = "";
+            document.getElementById("regPassword").value = "";
+            document.getElementById("regConfirmPassword").value = "";
+          }
+        }
+      } catch (err) {
+        errorEl.textContent = "Lỗi kết nối đến máy chủ!";
+        errorEl.style.display = "block";
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Đăng Ký";
       }
     });
   </script>

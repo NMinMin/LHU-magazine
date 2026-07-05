@@ -128,9 +128,11 @@ export function wordTable(rows, widths, options = {}) {
     const cellMargin = options.cellMargin ?? 100;
     const verticalAlign = options.verticalAlign || 'top';
     const grid = widths.map(width => `<w:gridCol w:w="${width}"/>`).join('');
-    const rowProperties = options.rowHeight
-        ? `<w:trPr><w:trHeight w:val="${options.rowHeight}" w:hRule="exact"/></w:trPr>` : '';
-    const body = rows.map((row, rowIndex) => `<w:tr>${rowProperties}${row.map((cell, index) => {
+    const body = rows.map((row, rowIndex) => {
+        const rowHeight = row.rowHeight || options.rowHeight || 0;
+        const rowProperties = rowHeight
+            ? `<w:trPr><w:trHeight w:val="${rowHeight}" w:hRule="exact"/></w:trPr>` : '';
+        return `<w:tr>${rowProperties}${row.map((cell, index) => {
         const value = typeof cell === 'object' ? cell : { content: cell };
         const shading = value.shading ? `<w:shd w:val="clear" w:color="auto" w:fill="${value.shading}"/>` : '';
         const cellBorder = options.headerBorder && rowIndex === 0
@@ -141,7 +143,8 @@ export function wordTable(rows, widths, options = {}) {
             `<w:${side} w:val="${value.borders[side] ? 'single' : 'nil'}" w:sz="6" w:color="000000"/>`).join('')}</w:tcBorders>` : '';
         const width = value.width || widths[index] || widths[0];
         return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/>${span}${verticalMerge}${shading}${cellBorder}${individualBorders}<w:vAlign w:val="${value.verticalAlign || verticalAlign}"/><w:tcMar><w:top w:w="${cellMargin}" w:type="dxa"/><w:left w:w="${cellMargin}" w:type="dxa"/><w:bottom w:w="${cellMargin}" w:type="dxa"/><w:right w:w="${cellMargin}" w:type="dxa"/></w:tcMar></w:tcPr>${value.content || wordParagraph('', {})}</w:tc>`;
-    }).join('')}</w:tr>`).join('');
+    }).join('')}</w:tr>`;
+    }).join('');
     const borderConfig = options.borderConfig;
     const customBorders = borderConfig
         ? `<w:tblBorders>${['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(name => `<w:${name} w:val="${borderConfig[name] ? 'single' : 'nil'}" w:sz="6" w:color="000000"/>`).join('')}</w:tblBorders>` : '';
@@ -180,7 +183,17 @@ export function quillHtmlToWordXml(html, imageMap = new Map()) {
             const htmlRows = Array.from(node.rows);
             const count = Math.max(1, ...htmlRows.map(row =>
                 Array.from(row.cells).reduce((sum, cell) => sum + cell.colSpan, 0)));
-            const widths = Array(count).fill(Math.floor(4510 / count));
+            const savedCols = Array.from(node.querySelectorAll(':scope > colgroup > col'))
+                .map(col => cssLengthToTwips(col.style.width || col.getAttribute('width') || ''))
+                .filter(Boolean);
+            const firstRowWidths = Array.from(htmlRows[0]?.cells || [])
+                .flatMap(cell => {
+                    const span = Math.max(1, cell.colSpan || 1);
+                    const width = cssLengthToTwips(cell.style.width || '');
+                    return Array(span).fill(width ? Math.floor(width / span) : 0);
+                });
+            const widths = Array.from({ length: count }, (_, index) =>
+                savedCols[index] || firstRowWidths[index] || Math.floor(4510 / count));
             const matrix = Array.from({ length: htmlRows.length }, () => Array(count).fill(null));
             htmlRows.forEach((row, rowIndex) => {
                 let columnIndex = 0;
@@ -219,9 +232,14 @@ export function quillHtmlToWordXml(html, imageMap = new Map()) {
                     columnIndex += columnSpan;
                 });
             });
-            const rows = matrix.map(row => row.map((cell, columnIndex) =>
-                cell || { content: wordParagraph('', {}), width: widths[columnIndex] }
-            ).filter(cell => !cell.skip));
+            const rows = matrix.map((row, rowIndex) => {
+                const wordRow = row.map((cell, columnIndex) =>
+                    cell || { content: wordParagraph('', {}), width: widths[columnIndex] }
+                ).filter(cell => !cell.skip);
+                const height = cssLengthToTwips(htmlRows[rowIndex]?.style.height || '');
+                if (height) wordRow.rowHeight = height;
+                return wordRow;
+            });
             const hasCustomBorders = ['top', 'bottom', 'left', 'right', 'insideH', 'insideV', 'header']
                 .some(key => key in node.dataset);
             const borderConfig = hasCustomBorders ? {

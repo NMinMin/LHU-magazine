@@ -9,7 +9,9 @@ import {
     createArticlePage, pageHasOverflow, appendTextBlockAcrossPages, paginateContent,
     renderSingleArticlePreview, togglePreviewMode, renderLivePreview,
     createNewArticle, deleteCurrentArticle, createNewIssue, zoomPreview,
-    activeArticle, toggleDarkMode, switchMobileTab, adjustPreviewScale
+    activeArticle, toggleDarkMode, switchMobileTab, adjustPreviewScale,
+    toggleAiPanel, openAuthorDialog, closeAuthorDialog, addAuthorProfile,
+    renderAuthorProfiles, removeAuthorProfile
 } from './modules/ui.js';
 import {
     initQuill, openRichTextWorkspace, closeRichTextWorkspace, formatDoc,
@@ -25,6 +27,11 @@ import {
     closeExportModal, exportJSON
 } from './modules/export.js';
 import { runAiReview, applySelectedSuggestions } from './modules/ai.js';
+import {
+    loadProfile, ensureClientWorkspace, applyRoleUi, loadSubmissions, renderSubmissionsList,
+    openLhjLogin, openMediaLibrary, closeMediaLibrary, handleMediaUpload,
+    uploadAuthorPhotoFromInput
+} from './modules/cloud.js';
 
 // Expose states to global window scope for inline scripts
 window.state = state;
@@ -72,6 +79,12 @@ Object.assign(window, {
     toggleDarkMode,
     switchMobileTab,
     adjustPreviewScale,
+    toggleAiPanel,
+    openAuthorDialog,
+    closeAuthorDialog,
+    addAuthorProfile,
+    renderAuthorProfiles,
+    removeAuthorProfile,
     openRichTextWorkspace,
     closeRichTextWorkspace,
     formatDoc,
@@ -104,7 +117,14 @@ Object.assign(window, {
     closeExportModal,
     exportJSON,
     runAiReview,
-    applySelectedSuggestions: applySelectedSuggestions
+    applySelectedSuggestions: applySelectedSuggestions,
+    renderSubmissionsList,
+    loadSubmissions,
+    openLhjLogin,
+    openMediaLibrary,
+    closeMediaLibrary,
+    handleMediaUpload,
+    uploadAuthorPhotoFromInput
 });
 
 async function boot() {
@@ -128,6 +148,7 @@ async function boot() {
     try {
         state.cloudUser = await window.lhuRequireAuth();
         if (!state.cloudUser) return;
+        await loadProfile();
         const { data, error } = await window.lhuSupabase
             .from('magazine_workspaces')
             .select('state')
@@ -140,6 +161,7 @@ async function boot() {
             state.appState.previewMode = state.appState.previewMode === 'full' ? 'full' : 'single';
             localStorage.setItem(state.LOCAL_STATE_KEY, JSON.stringify(state.appState));
         }
+        ensureClientWorkspace();
         state.cloudSyncEnabled = true;
         if (!data) await saveToSupabase();
     } catch (error) {
@@ -158,6 +180,8 @@ async function boot() {
 
     // Initialize layout and articles list
     initApp();
+    applyRoleUi();
+    loadSubmissions();
 }
 
 if (document.readyState === 'loading') {

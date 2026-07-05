@@ -1,6 +1,7 @@
 import { state, saveToLocalStorage } from './state.js';
 import { showToast } from './utils.js';
 import { loadArticleIntoEditor, renderLivePreview } from './ui.js';
+import { openMediaLibrary } from './cloud.js';
 
 export let quill = null;
 export let quillArticleId = null;
@@ -51,6 +52,17 @@ export function initQuill() {
             imageResize: { displaySize: true }
         }
     });
+    const toolbar = quill.getModule('toolbar');
+    if (toolbar) {
+        toolbar.addHandler('image', () => {
+            openMediaLibrary((url) => {
+                const range = quill.getSelection(true) || savedQuillRange || { index: quill.getLength() - 1, length: 0 };
+                quill.insertEmbed(range.index, 'image', url, 'user');
+                quill.setSelection(range.index + 1, 0, 'silent');
+                syncRichEditorToState();
+            });
+        });
+    }
 
     quill.on('text-change', function (_delta, _oldDelta, source) {
         if (loadingQuillContent || source === 'silent') return;
@@ -65,6 +77,7 @@ export function initQuill() {
     quill.root.addEventListener('focusin', rememberEditorSelection);
     quill.root.addEventListener('paste', pasteGridIntoTable);
     quill.root.addEventListener('paste', pasteClipboardTablesIntoQuill, true);
+    quill.root.addEventListener('click', handleTableClick);
 }
 
 export function normalizeClipboardTable(table, clipboardRoot) {
@@ -425,6 +438,7 @@ export function insertDraftTableAtCursor() {
     if (!draftTable) return;
     const table = draftTable.cloneNode(true);
     table.querySelectorAll('td,th').forEach(cell => { cell.contentEditable = 'false'; cell.classList.remove('draft-cell-selected'); });
+    ensureTableResizeHandles(table);
     const insertionIndex = Math.max(0, Math.min(savedQuillRange?.index ?? (quill.getLength() - 1), quill.getLength() - 1));
     closeTableDialog();
     quill.focus();
@@ -537,6 +551,16 @@ export function applyTableLayout(table, mode) {
     table.dataset.autofit = mode;
     table.style.tableLayout = mode === 'fixed' ? 'fixed' : 'auto';
     table.style.width = mode === 'content' ? 'auto' : '100%';
+    if (mode === 'fixed' && !table.querySelector('colgroup')) {
+        const columnCount = Math.max(1, ...Array.from(table.rows).map(row => Array.from(row.cells).reduce((sum, cell) => sum + cell.colSpan, 0)));
+        const colgroup = document.createElement('colgroup');
+        for (let i = 0; i < columnCount; i += 1) {
+            const col = document.createElement('col');
+            col.style.width = `${100 / columnCount}%`;
+            colgroup.appendChild(col);
+        }
+        table.prepend(colgroup);
+    }
 }
 
 export function applyBordersToTable(table, config) {
@@ -592,6 +616,7 @@ export function deleteSelectedTable() {
 export function finishTableCellEdit(message) {
     if (activeEditorTable) {
         activeEditorTable.dataset.borderMode = 'custom';
+        ensureTableResizeHandles(activeEditorTable);
         syncRichEditorToState();
     }
     if (message) showToast(message);
@@ -717,6 +742,79 @@ export function toggleActiveCellBorder(side) {
     const property = `border${side[0].toUpperCase()}${side.slice(1)}`;
     activeEditorCell.style[property] = activeEditorCell.style[property]?.includes('1px') ? '0 solid #000' : '1px solid #000';
     finishTableCellEdit();
+}
+
+export function handleTableClick(event) {
+    const table = event.target.closest?.('#rich-editor-field table');
+    if (!table) return;
+    activeEditorTable = table;
+    activeEditorCell = event.target.closest('td, th');
+    ensureTableResizeHandles(table);
+}
+
+export function ensureTableResizeHandles(table) {
+    if (!table) return;
+    table.dataset.resizeReady = 'true';
+    table.style.position = table.style.position || 'relative';
+    Array.from(table.rows).forEach(row => {
+        if (!row.style.height) row.style.height = `${Math.max(34, row.getBoundingClientRect().height || 34)}px`;
+        Array.from(row.cells).forEach(cell => {
+            cell.style.position = 'relative';
+            if (!cell.querySelector(':scope > .table-col-resizer')) {
+                const colHandle = document.createElement('span');
+                colHandle.className = 'table-col-resizer';
+                colHandle.contentEditable = 'false';
+                colHandle.addEventListener('mousedown', event => startColumnResize(event, table, cell));
+                cell.appendChild(colHandle);
+            }
+            if (!cell.querySelector(':scope > .table-row-resizer')) {
+                const rowHandle = document.createElement('span');
+                rowHandle.className = 'table-row-resizer';
+                rowHandle.contentEditable = 'false';
+                rowHandle.addEventListener('mousedown', event => startRowResize(event, table, cell.parentElement));
+                cell.appendChild(rowHandle);
+            }
+        });
+    });
+}
+
+export function startColumnResize(event, table, cell) {
+    event.preventDefault();
+    event.stopPropagation();
+    const startX = event.clientX;
+    const startWidth = cell.getBoundingClientRect().width;
+    const columnIndex = cell.cellIndex;
+    const move = (moveEvent) => {
+        const nextWidth = Math.max(32, startWidth + moveEvent.clientX - startX);
+        Array.from(table.rows).forEach(row => {
+            const target = row.cells[columnIndex];
+            if (target) target.style.width = `${nextWidth}px`;
+        });
+    };
+    const up = () => {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', up);
+        syncRichEditorToState();
+    };
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+}
+
+export function startRowResize(event, _table, row) {
+    event.preventDefault();
+    event.stopPropagation();
+    const startY = event.clientY;
+    const startHeight = row.getBoundingClientRect().height;
+    const move = (moveEvent) => {
+        row.style.height = `${Math.max(24, startHeight + moveEvent.clientY - startY)}px`;
+    };
+    const up = () => {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', up);
+        syncRichEditorToState();
+    };
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
 }
 
 export function pasteGridIntoTable(event) {

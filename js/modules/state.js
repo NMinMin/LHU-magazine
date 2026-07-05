@@ -13,6 +13,8 @@ export const state = {
     LOCAL_STATE_KEY: 'lhu_journal_manager_state_v4',
     CLOUD_WORKSPACE_ID: 'default',
     cloudUser: null,
+    cloudProfile: null,
+    clientSubmissions: [],
     cloudSyncEnabled: false,
     cloudSaveTimer: null
 };

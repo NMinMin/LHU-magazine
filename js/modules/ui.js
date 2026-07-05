@@ -2,6 +2,7 @@ import { state, saveToLocalStorage, saveToSupabase } from './state.js';
 import { showToast, removeVietnameseDiacritics, toTitleCase } from './utils.js';
 import { renderAiReviewPanel } from './ai.js';
 import { getQuillInstance, getQuillArticleId, setQuillArticleId, getLoadingQuillContent, setLoadingQuillContent, syncWorkspacePreview } from './editor.js';
+import { isClient, normalizeClientPages, applyRoleUi, escapeHtml } from './cloud.js';
 
 let singleArticlePreviewTemplate = '';
 export function getSingleArticlePreviewTemplate() {
@@ -15,6 +16,7 @@ export function getSingleArticlePreviewTemplate() {
 }
 
 export function initApp() {
+    if (isClient()) normalizeClientPages();
     populateIssueSelector();
     const selector = document.getElementById('issue-selector');
     if (selector) {
@@ -36,6 +38,8 @@ export function initApp() {
     }
 
     switchMobileTab(state.appState.mobileTab || 'editor');
+    applyAiPanelCollapsed();
+    applyRoleUi();
 
     if (selector) {
         selector.addEventListener('change', function (e) {
@@ -81,6 +85,14 @@ export function populateIssueSelector() {
     const selector = document.getElementById('issue-selector');
     if (!selector) return;
     selector.innerHTML = '';
+    if (isClient()) {
+        const option = document.createElement('option');
+        option.value = state.appState.currentIssueId || 'client-drafts';
+        option.textContent = 'Bài báo của tôi';
+        selector.appendChild(option);
+        selector.value = option.value;
+        return;
+    }
     if (!Object.keys(state.appState.issues).length) {
         const placeholder = document.createElement('option');
         placeholder.value = '';
@@ -103,6 +115,15 @@ export function recalculateContinuousPages() {
         const globalPage = document.getElementById('global-page-count');
         if (totalArts) totalArts.textContent = '0';
         if (globalPage) globalPage.textContent = '0 bài báo (Tổng cộng 0 trang)';
+        return;
+    }
+
+    if (isClient()) {
+        normalizeClientPages();
+        const totalArts = document.getElementById('sidebar-total-articles');
+        const globalPage = document.getElementById('global-page-count');
+        if (totalArts) totalArts.textContent = currentIssue.articles.length;
+        if (globalPage) globalPage.textContent = `${currentIssue.articles.length} bài báo`;
         return;
     }
 
@@ -170,7 +191,12 @@ export function renderArticlesList() {
     currentIssue.articles.forEach((art, index) => {
         const isActive = art.id === state.appState.currentArticleId;
         const formatPage = (num) => String(num).padStart(3, '0');
-        const pageRangeStr = `Tr. ${formatPage(art.startPage)} - ${formatPage(art.endPage)}`;
+        const pageRangeStr = isClient()
+            ? `Tr. 001 - ${formatPage(art.endPage || art.pageCount || 1)}`
+            : `Tr. ${formatPage(art.startPage)} - ${formatPage(art.endPage)}`;
+        const sourceNote = art.sourceClient
+            ? `<p class="mt-1 rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">Client: ${escapeHtml(art.sourceClient.displayName || art.sourceClient.email || 'unknown')} - ${escapeHtml(art.sourceExportedFormat || '')}</p>`
+            : '';
 
         const item = document.createElement('div');
         item.className = `group relative p-2.5 rounded-xl transition-all border cursor-pointer ${isActive
@@ -207,6 +233,7 @@ export function renderArticlesList() {
                         ${art.titleVn || '(Không có tiêu đề)'}
                     </h4>
                     <p class="text-[9px] text-slate-500 dark:text-slate-400 truncate">${art.authors || 'Chưa rõ tác giả'}</p>
+                    ${sourceNote}
                 </div>
             </div>
         `;
@@ -308,6 +335,8 @@ export function loadArticleIntoEditor(id) {
     document.getElementById('input-page-count').value = art.pageCount || 5;
     document.getElementById('input-title-vn').value = art.titleVn || '';
     document.getElementById('input-title-en').value = art.titleEn || '';
+    const headerTitle = document.getElementById('input-header-title');
+    if (headerTitle) headerTitle.value = art.headerTitle || '';
     document.getElementById('input-authors').value = art.authors || '';
     document.getElementById('input-email').value = art.email || '';
     document.getElementById('input-date-received').value = art.dateReceived || '';
@@ -324,12 +353,15 @@ export function loadArticleIntoEditor(id) {
 
     renderLivePreview(art);
     renderAiReviewPanel(art);
+    renderAuthorProfiles(art);
 }
 
 export function clearEditorForm() {
     document.getElementById('input-page-count').value = 1;
     document.getElementById('input-title-vn').value = '';
     document.getElementById('input-title-en').value = '';
+    const headerTitle = document.getElementById('input-header-title');
+    if (headerTitle) headerTitle.value = '';
     document.getElementById('input-authors').value = '';
     document.getElementById('input-email').value = '';
     document.getElementById('input-date-received').value = '';
@@ -359,6 +391,8 @@ export function syncFormToPreview() {
 
     art.titleVn = document.getElementById('input-title-vn').value;
     art.titleEn = document.getElementById('input-title-en').value;
+    const headerTitle = document.getElementById('input-header-title');
+    if (headerTitle) art.headerTitle = headerTitle.value;
     art.authors = document.getElementById('input-authors').value;
     art.email = document.getElementById('input-email').value;
     art.dateReceived = document.getElementById('input-date-received').value;
@@ -440,8 +474,16 @@ export function formatKeywords(value, fallback) {
 }
 
 export function articleDisplayPageNumber(art, articlePageNumber) {
+    if (isClient()) return Math.max(1, parseInt(articlePageNumber || 1));
     const articleStartPage = parseInt(art?.startPage || 1);
     return articleStartPage + Math.max(1, parseInt(articlePageNumber || 1)) - 1;
+}
+
+export function runningHeaderTitle(art) {
+    if (art?.headerTitle) return art.headerTitle;
+    return toTitleCase(effectiveHeaderLanguage(art) === 'en'
+        ? (art.titleEn || art.titleVn || 'ARTICLE TITLE')
+        : (art.titleVn || art.titleEn || 'TIÊU ĐỀ BÀI BÁO'));
 }
 
 export function createArticlePage(pageNumber, art) {
@@ -454,9 +496,7 @@ export function createArticlePage(pageNumber, art) {
     header.className = `article-running-header ${displayPageNumber % 2 ? 'odd' : 'even'}`;
     header.textContent = displayPageNumber % 2
         ? (art.authors || 'Tác giả')
-        : toTitleCase(effectiveHeaderLanguage(art) === 'en'
-            ? (art.titleEn || art.titleVn || 'ARTICLE TITLE')
-            : (art.titleVn || art.titleEn || 'TIÊU ĐỀ BÀI BÁO'));
+        : runningHeaderTitle(art);
     page.appendChild(header);
 
     const content = document.createElement('div');
@@ -581,6 +621,7 @@ export function renderSingleArticlePreview(art) {
     if (pvTitleEn) pvTitleEn.textContent = art.titleEn || 'ARTICLE TITLE IN ENGLISH';
     if (pvAuthorsVn) pvAuthorsVn.textContent = art.authors || 'Tên các tác giả';
     if (pvAuthorsEn) pvAuthorsEn.textContent = removeVietnameseDiacritics(art.authors) || 'Authors Name';
+    renderAuthorProfilesInPreview(art, pvAuthorsVn);
     if (pvContactEmail) pvContactEmail.textContent = art.email || 'email@domain.com';
     if (pvContactEmailEn) pvContactEmailEn.textContent = art.email || 'email@domain.com';
 
@@ -614,7 +655,34 @@ export function renderSingleArticlePreview(art) {
     syncCurrentArticlePageCountFromPreview(art);
 }
 
+export function renderAuthorProfilesInPreview(art, anchor) {
+    const old = document.getElementById('pv-author-profiles');
+    if (old) old.remove();
+    const profiles = Array.isArray(art?.authorProfiles) ? art.authorProfiles : [];
+    if (!anchor || !profiles.length) return;
+    const block = document.createElement('div');
+    block.id = 'pv-author-profiles';
+    block.className = 'mt-2 grid grid-cols-2 gap-2 text-[8px] font-sans text-slate-700';
+    block.innerHTML = profiles.map(profile => `
+        <div class="flex items-start gap-1.5 rounded border border-slate-200 p-1">
+            ${profile.photoUrl ? `<img src="${profile.photoUrl}" alt="" style="width:28px;height:38px;object-fit:cover">` : ''}
+            <div>
+                <div style="font-weight:bold">${escapeHtml(profile.name)}</div>
+                <div>${escapeHtml(profile.info || '')}</div>
+                <div>${escapeHtml(profile.email || '')}</div>
+                <div>${escapeHtml(profile.orcid || '')}</div>
+            </div>
+        </div>
+    `).join('');
+    anchor.after(block);
+}
+
 export function togglePreviewMode() {
+    if (isClient()) {
+        state.appState.previewMode = 'single';
+        renderLivePreview();
+        return;
+    }
     state.appState.previewMode = state.appState.previewMode === 'full' ? 'single' : 'full';
     saveToLocalStorage();
     renderLivePreview();
@@ -691,7 +759,9 @@ export function createNewArticle() {
         bodyContent: "",
         pageCount: 1,
         aiReviewSuggestions: null,
-        evenHeaderLanguage: "issue"
+        evenHeaderLanguage: "issue",
+        headerTitle: "",
+        authorProfiles: []
     };
 
     currentIssue.articles.push(newArt);
@@ -733,6 +803,10 @@ export function deleteCurrentArticle() {
 }
 
 export function createNewIssue() {
+    if (isClient()) {
+        showToast('Client chi tao bai le, khong tao so bao.');
+        return;
+    }
     const name = prompt("Nhập tên số báo mới (ví dụ: Số 03 - Năm 2026):");
     if (!name) return;
 
@@ -875,5 +949,109 @@ export function preparePreviewForOutput() {
         recalculateContinuousPages();
     }
     adjustPreviewScale();
+}
+
+export function toggleAiPanel() {
+    state.appState.aiPanelCollapsed = !state.appState.aiPanelCollapsed;
+    saveToLocalStorage();
+    applyAiPanelCollapsed();
+}
+
+export function applyAiPanelCollapsed() {
+    const panel = document.getElementById('ai-review-section');
+    const button = document.getElementById('ai-collapse-toggle');
+    if (!panel) return;
+    const collapsed = Boolean(state.appState.aiPanelCollapsed);
+    panel.classList.toggle('ai-panel-collapsed', collapsed);
+    if (button) {
+        button.innerHTML = collapsed ? '<i class="fa-solid fa-chevron-left"></i>' : '<i class="fa-solid fa-chevron-right"></i>';
+        button.title = collapsed ? 'Hien AI Review' : 'An AI Review';
+    }
+}
+
+export function openAuthorDialog() {
+    const modal = document.getElementById('author-dialog');
+    if (!modal) return;
+    ['author-name-input', 'author-info-input', 'author-email-input', 'author-orcid-input', 'author-photo-url'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const file = document.getElementById('author-photo-input');
+    if (file) file.value = '';
+    const preview = document.getElementById('author-photo-preview');
+    if (preview) preview.removeAttribute('src');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+export function closeAuthorDialog() {
+    const modal = document.getElementById('author-dialog');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+export function addAuthorProfile() {
+    const art = activeArticle();
+    if (!art) return;
+    const profile = {
+        id: (crypto.randomUUID && crypto.randomUUID()) || `author-${Date.now()}`,
+        name: document.getElementById('author-name-input')?.value.trim() || '',
+        info: document.getElementById('author-info-input')?.value.trim() || '',
+        email: document.getElementById('author-email-input')?.value.trim() || '',
+        orcid: document.getElementById('author-orcid-input')?.value.trim() || '',
+        photoUrl: document.getElementById('author-photo-url')?.value.trim() || ''
+    };
+    if (!profile.name) {
+        showToast('Nhap ten tac gia truoc khi them.');
+        return;
+    }
+    art.authorProfiles = Array.isArray(art.authorProfiles) ? art.authorProfiles : [];
+    art.authorProfiles.push(profile);
+    art.authors = art.authorProfiles.map(item => item.name).join(', ');
+    const input = document.getElementById('input-authors');
+    if (input) input.value = art.authors;
+    saveToLocalStorage();
+    renderAuthorProfiles(art);
+    renderLivePreview(art);
+    closeAuthorDialog();
+}
+
+export function renderAuthorProfiles(art = activeArticle()) {
+    const list = document.getElementById('author-profiles-list');
+    if (!list) return;
+    const profiles = Array.isArray(art?.authorProfiles) ? art.authorProfiles : [];
+    list.innerHTML = '';
+    if (!profiles.length) {
+        list.innerHTML = '<div class="text-[10px] text-slate-400">Chưa có hồ sơ tác giả.</div>';
+        return;
+    }
+    profiles.forEach(profile => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-800';
+        row.innerHTML = `
+            ${profile.photoUrl ? `<img src="${profile.photoUrl}" alt="" class="h-10 w-8 rounded object-cover">` : '<div class="h-10 w-8 rounded bg-slate-200 dark:bg-slate-700"></div>'}
+            <div class="min-w-0 flex-1">
+                <div class="truncate text-[11px] font-bold text-slate-700 dark:text-slate-100">${escapeHtml(profile.name)}</div>
+                <div class="truncate text-[10px] text-slate-400">${escapeHtml(profile.email || profile.orcid || profile.info || '')}</div>
+            </div>
+            <button type="button" class="text-rose-500 hover:text-rose-700" data-remove-author="${profile.id}"><i class="fa-solid fa-xmark"></i></button>
+        `;
+        row.querySelector('[data-remove-author]').addEventListener('click', () => removeAuthorProfile(profile.id));
+        list.appendChild(row);
+    });
+}
+
+export function removeAuthorProfile(id) {
+    const art = activeArticle();
+    if (!art || !Array.isArray(art.authorProfiles)) return;
+    art.authorProfiles = art.authorProfiles.filter(profile => profile.id !== id);
+    art.authors = art.authorProfiles.map(item => item.name).join(', ');
+    const input = document.getElementById('input-authors');
+    if (input) input.value = art.authors;
+    saveToLocalStorage();
+    renderAuthorProfiles(art);
+    renderLivePreview(art);
 }
 
